@@ -1,0 +1,87 @@
+# Línea base sin hardening; se audita con Checkov y Trivy y se corrige en la fase 4.
+# Los puertos se publican solo en 127.0.0.1 para no exponer el laboratorio a la red.
+
+name: umg-wp-ecommerce
+
+services:
+  db:
+    # Vulnerable intencional: imagen fijada por etiqueta pero no por digest.
+    image: mysql:8.4.13
+    container_name: umg-db
+    restart: unless-stopped
+    # Vulnerable intencional: secretos en variables de entorno en lugar de Docker secrets.
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
+      MYSQL_USER: ${MYSQL_USER:-wpuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+    volumes:
+      - db_data:/var/lib/mysql
+    # Vulnerable intencional: MySQL publicado en el anfitrión sin necesidad.
+    ports:
+      - "127.0.0.1:${DB_PUERTO_HOST:-3306}:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u\"$$MYSQL_USER\" -p\"$$MYSQL_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    # Vulnerable intencional: sin límites de recursos, sin no-new-privileges y sin cap_drop.
+
+  wordpress:
+    # Vulnerable intencional: imagen fijada por etiqueta pero no por digest.
+    image: wordpress:7.1.4-php8.3-apache
+    container_name: umg-wordpress
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    # Vulnerable intencional: la contraseña de la BD viaja como variable de entorno.
+    environment: &wp_env
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
+      WORDPRESS_DB_USER: ${MYSQL_USER:-wpuser}
+      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+      WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
+      # Vulnerable intencional: modo depuración activo que muestra errores PHP.
+      WORDPRESS_DEBUG: "1"
+    # Vulnerable intencional: solo HTTP, sin TLS ni WAF delante.
+    ports:
+      - "127.0.0.1:8080:80"
+    volumes:
+      - wp_html:/var/www/html
+    # Vulnerable intencional: arranca como root, sin read_only ni límites de recursos.
+
+  wpcli:
+    # No arranca con "up"; se usa con "docker compose run --rm wpcli ...".
+    image: wordpress:cli-2.12.0-php8.3
+    profiles: ["herramientas"]
+    # La imagen CLI usa el UID 82 para www-data y la de Apache el 33; así coinciden los dueños de archivos.
+    user: "33:33"
+    depends_on:
+      db:
+        condition: service_healthy
+      wordpress:
+        condition: service_started
+    environment:
+      <<: *wp_env
+      # En la CLI se apaga la depuración para no llenar la salida de avisos.
+      WORDPRESS_DEBUG: ""
+      WP_URL: ${WP_URL:-http://localhost:8080}
+      WP_TITULO: ${WP_TITULO:-Tienda UMG}
+      WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:?Define WP_ADMIN_PASSWORD en .env}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@tienda-umg.test}
+      WOOCOMMERCE_VERSION: ${WOOCOMMERCE_VERSION:-11.3.0}
+      GESTOR_PASSWORD: ${GESTOR_PASSWORD:?Define GESTOR_PASSWORD en .env}
+      EDITOR_PASSWORD: ${EDITOR_PASSWORD:?Define EDITOR_PASSWORD en .env}
+      CLIENTE_PASSWORD: ${CLIENTE_PASSWORD:?Define CLIENTE_PASSWORD en .env}
+      CREAR_DATOS_EJEMPLO: ${CREAR_DATOS_EJEMPLO:-1}
+    volumes:
+      - wp_html:/var/www/html
+      - ./scripts:/scripts:ro
+    working_dir: /var/www/html
+
+volumes:
+  db_data:
+  wp_html:

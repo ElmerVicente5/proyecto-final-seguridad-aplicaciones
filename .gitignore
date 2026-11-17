@@ -1,0 +1,31 @@
+# Secretos
+.env
+.env.*
+!.env.example
+CLAUDE.md
+# Datos locales por si se usan bind mounts en lugar de volúmenes
+data/
+db_data/
+wp_html/
+wordpress/
+mysql/
+*.sql
+*.sql.gz
+
+# Reportes que contienen credenciales, cookies o tokens capturados
+reportes/**/*_sensible.*
+reportes/**/*.har
+reportes/**/hydra*.restore
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Temporales de Office
+~$*

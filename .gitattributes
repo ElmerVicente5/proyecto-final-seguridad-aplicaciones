@@ -1,0 +1,19 @@
+# Normalización por defecto.
+* text=auto
+
+# Archivos que se montan o ejecutan dentro de contenedores Linux: siempre LF
+*.sh      text eol=lf
+*.conf    text eol=lf
+*.yml     text eol=lf
+*.yaml    text eol=lf
+*.env     text eol=lf
+.env.example text eol=lf
+Dockerfile*  text eol=lf
+*.php     text eol=lf
+
+# Binarios
+*.png     binary
+*.jpg     binary
+*.pdf     binary
+*.docx    binary
+*.xlsx    binary
