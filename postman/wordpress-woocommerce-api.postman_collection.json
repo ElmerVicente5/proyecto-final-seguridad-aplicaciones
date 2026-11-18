@@ -1,0 +1,250 @@
+{
+  "info": {
+    "name": "WordPress y WooCommerce - Pruebas de caja gris",
+    "description": "Pruebas de seguridad de las APIs nativas de WordPress y WooCommerce y de XML-RPC, sin credenciales, contra localhost.\n\nCada prueba describe el comportamiento seguro esperado. En la línea base fallan las que corresponden a exposiciones de la configuración por defecto; las que pasan son controles que WooCommerce ya aplica. Las fallidas se corrigen con el endurecimiento y el WAF de las fases 4 y 5.\n\nUsa el entorno 'Laboratorio localhost'.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Descubrimiento sin autenticación",
+      "item": [
+        {
+          "name": "1.1 Índice de rutas de la API REST",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No publica el índice de rutas a usuarios anónimos', () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403, 404]);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{sitio}}/wp-json/",
+            "description": "El índice lista todas las rutas, incluidas las del plugin propio y de WooCommerce, y facilita el mapa de superficie de ataque."
+          }
+        },
+        {
+          "name": "1.2 Usuarios publicados en /wp/v2/users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const lista = pm.response.code === 200 ? pm.response.json() : [];",
+                  "",
+                  "pm.test('No entrega nombres de usuario a usuarios anónimos', () => {",
+                  "    pm.expect(lista.map(u => u.slug)).to.be.empty;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{sitio}}/wp-json/wp/v2/users",
+            "description": "Los nombres de usuario obtenidos aquí son la mitad de un ataque de fuerza bruta."
+          }
+        },
+        {
+          "name": "1.3 Enumeración de autores con ?author=1",
+          "protocolProfileBehavior": { "followRedirects": false },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const destino = pm.response.headers.get('Location') || '';",
+                  "",
+                  "pm.test('No redirige a la página del autor con su nombre de usuario', () => {",
+                  "    pm.expect(destino).to.not.include('/author/');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{sitio}}/?author=1",
+            "description": "WordPress redirige a /author/<usuario>/ y revela el nombre de la cuenta del administrador."
+          }
+        },
+        {
+          "name": "1.4 Cabeceras de seguridad de la portada",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const cabecera = (nombre) => pm.response.headers.get(nombre) || '';",
+                  "",
+                  "pm.test('Envía X-Content-Type-Options: nosniff', () => {",
+                  "    pm.expect(cabecera('X-Content-Type-Options').toLowerCase()).to.eql('nosniff');",
+                  "});",
+                  "pm.test('Protege contra clickjacking (X-Frame-Options o CSP frame-ancestors)', () => {",
+                  "    pm.expect(cabecera('X-Frame-Options') || cabecera('Content-Security-Policy').includes('frame-ancestors')).to.be.ok;",
+                  "});",
+                  "pm.test('No revela la versión de PHP (X-Powered-By)', () => {",
+                  "    pm.expect(cabecera('X-Powered-By')).to.eql('');",
+                  "});",
+                  "pm.test('No revela la versión de Apache (Server)', () => {",
+                  "    pm.expect(cabecera('Server')).to.not.match(/\\d/);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{sitio}}/"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. WooCommerce",
+      "item": [
+        {
+          "name": "2.1 Pedidos de /wc/v3/orders sin credenciales",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Exige autenticación (401)', () => pm.response.to.have.status(401));",
+                  "pm.test('No devuelve datos de pedidos', () => pm.expect(pm.response.text()).to.not.include('billing'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{sitio}}/wp-json/wc/v3/orders"
+          }
+        },
+        {
+          "name": "2.2 Store API: pedido de otro cliente sin su clave",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No entrega el pedido sin la clave del pedido (401, 403 o 404)', () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([401, 403, 404]);",
+                  "});",
+                  "pm.test('No devuelve datos personales', () => pm.expect(pm.response.text()).to.not.include('@'));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": "{{sitio}}/wp-json/wc/store/v1/order/15",
+            "description": "Prueba de BOLA sobre la API pública de la tienda: el pedido 15 es de cliente2."
+          }
+        },
+        {
+          "name": "2.3 Store API: paginación de 1000 productos",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza un tamaño de página mayor a 100 (400)', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{sitio}}/wp-json/wc/store/v1/products?per_page=1000",
+              "host": ["{{sitio}}"],
+              "path": ["wp-json", "wc", "store", "v1", "products"],
+              "query": [{ "key": "per_page", "value": "1000" }]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. XML-RPC",
+      "item": [
+        {
+          "name": "3.1 Métodos disponibles en xmlrpc.php",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('XML-RPC está deshabilitado (403 o 405)', () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([403, 405]);",
+                  "});",
+                  "pm.test('No expone system.multicall', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('system.multicall');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "text/xml" }],
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\"?>\n<methodCall><methodName>system.listMethods</methodName><params></params></methodCall>"
+            },
+            "url": "{{sitio}}/xmlrpc.php"
+          }
+        },
+        {
+          "name": "3.2 Fuerza bruta amplificada con system.multicall",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const intentos = (pm.response.text().match(/faultCode/g) || []).length;",
+                  "",
+                  "pm.test('No permite probar varias contraseñas en una sola petición', () => {",
+                  "    pm.expect(intentos, `contraseñas probadas en una petición: ${intentos}`).to.be.below(2);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "text/xml" }],
+            "body": {
+              "mode": "raw",
+              "raw": "<?xml version=\"1.0\"?>\n<methodCall><methodName>system.multicall</methodName><params><param><value><array><data>\n<value><struct><member><name>methodName</name><value><string>wp.getUsersBlogs</string></value></member><member><name>params</name><value><array><data><value><string>admin</string></value><value><string>clave1</string></value></data></array></value></member></struct></value>\n<value><struct><member><name>methodName</name><value><string>wp.getUsersBlogs</string></value></member><member><name>params</name><value><array><data><value><string>admin</string></value><value><string>clave2</string></value></data></array></value></member></struct></value>\n<value><struct><member><name>methodName</name><value><string>wp.getUsersBlogs</string></value></member><member><name>params</name><value><array><data><value><string>admin</string></value><value><string>clave3</string></value></data></array></value></member></struct></value>\n<value><struct><member><name>methodName</name><value><string>wp.getUsersBlogs</string></value></member><member><name>params</name><value><array><data><value><string>admin</string></value><value><string>clave4</string></value></data></array></value></member></struct></value>\n<value><struct><member><name>methodName</name><value><string>wp.getUsersBlogs</string></value></member><member><name>params</name><value><array><data><value><string>admin</string></value><value><string>clave5</string></value></data></array></value></member></struct></value>\n</data></array></value></param></params></methodCall>"
+            },
+            "url": "{{sitio}}/xmlrpc.php",
+            "description": "Cinco intentos de login en una sola petición HTTP; esquiva los límites que cuentan peticiones."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -119,6 +119,33 @@ repetir la colección antes de ese tiempo, borra los bloqueos con:
 docker compose run --rm wpcli wp transient delete --all
 ```
 
+## Pruebas ofensivas (fase 3)
+
+Todas las pruebas se hacen contra la línea base vulnerable en `localhost`. Las herramientas se
+ejecutan desde la terminal y guardan sus reportes en `reportes/fase3-pentest/`.
+
+| Prueba | Herramienta | Comando |
+|---|---|---|
+| Puertos del anfitrión | Nmap | `nmap -sV -p 8080,3306 127.0.0.1` |
+| Red interna de Docker | Nmap en contenedor | `docker run --rm --network umg-wp-ecommerce_default instrumentisto/nmap -sV -sC 172.19.0.2,3` |
+| Escaneo web de caja negra | OWASP ZAP | `./scripts/escanear-zap.sh` |
+| Enumeración de WordPress | WPScan | `docker run --rm --network host wpscanteam/wpscan --url http://localhost:8080 --enumerate u,cb,dbe --plugins-detection passive` |
+| APIs nativas (caja gris) | Postman | `postman collection run postman/wordpress-woocommerce-api.postman_collection.json -e postman/laboratorio-localhost.postman_environment.json` |
+
+`scripts/escanear-zap.sh` usa el ZAP instalado en Windows (ajusta `ZAP_DIR` si está en otra ruta) y
+corre el plan [scripts/zap/plan-caja-negra.yaml](scripts/zap/plan-caja-negra.yaml) en el puerto 8090.
+
+El escaneo activo de ZAP envía miles de peticiones y **ensucia la base de datos**. Al terminar la
+fase 3, reinicia el entorno desde cero:
+
+```bash
+docker compose down -v && ./scripts/instalar.sh
+```
+
+El mapa de superficie de ataque está en
+[docs/arquitectura/mapa-superficie-ataque.drawio](docs/arquitectura/mapa-superficie-ataque.drawio)
+(se abre en <https://app.diagrams.net> o con la extensión de draw.io en VS Code).
+
 ## Pipeline DevSecOps
 
 [.github/workflows/devsecops.yml](.github/workflows/devsecops.yml) se ejecuta en GitHub Actions en
@@ -185,7 +212,8 @@ docker compose down -v        # elimina contenedores y los volúmenes db_data y 
 │   ├── instalar-wordpress.sh  # instalación con WP-CLI (corre dentro del contenedor wpcli)
 │   └── escanear-fase2.sh      # SAST y SCA en local
 ├── plugin-consulta-pedidos/   # plugin propio: vulnerable/ y seguro/ (fase 2)
-├── postman/                   # colección y entorno de pruebas de seguridad de la API
+├── postman/                   # colecciones y entorno de pruebas de seguridad de la API
+├── docs/arquitectura/         # mapa de superficie de ataque (draw.io)
 ├── .semgrep/                  # reglas propias de Semgrep para WordPress
 ├── .github/workflows/         # pipeline DevSecOps (fase 2)
 ├── waf/                       # ModSecurity + OWASP CRS (fase 5)

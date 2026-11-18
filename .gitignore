@@ -41,3 +41,6 @@ desktop.ini
 
 # Dependencias PHP del plugin; se instalan con composer
 plugin-consulta-pedidos/*/vendor/
+
+# Assets del reporte HTML de ZAP (el HTML va con sufijo _sensible, fuera del repo)
+reportes/**/*_zap_caja-negra/

@@ -1,0 +1,48 @@
+# Plan de ZAP (Automation Framework) para el pentest de caja negra contra la tienda en localhost.
+# Las variables ZAP_REPORTES y FECHA las define scripts/escanear-zap.sh antes de lanzar ZAP.
+env:
+  contexts:
+    - name: tienda
+      urls:
+        - http://localhost:8080/
+        - http://localhost:8080/wp-json/
+        - http://localhost:8080/consultar-pedido/
+        - http://localhost:8080/xmlrpc.php
+      includePaths:
+        - http://localhost:8080.*
+  parameters:
+    failOnError: false
+    progressToStdout: true
+
+jobs:
+  - type: spider
+    parameters:
+      context: tienda
+      maxDuration: 5
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 5
+
+  - type: activeScan
+    parameters:
+      context: tienda
+      maxScanDurationInMins: 20
+      maxRuleDurationInMins: 2
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 5
+
+  - type: report
+    parameters:
+      template: modern
+      reportDir: ${ZAP_REPORTES}
+      reportFile: ${FECHA}_zap_caja-negra
+      reportTitle: Pentest de caja negra - Tienda UMG (localhost)
+
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: ${ZAP_REPORTES}
+      reportFile: ${FECHA}_zap_caja-negra
