@@ -1,0 +1,18 @@
+$ sed -n '20,29p' plugin-consulta-pedidos/vulnerable/includes/consultas.php | expand -t4
+function cp_obtener_pedido( $id ) {
+    global $wpdb;
+    // Vulnerable intencional: consulta sin preparar, el id se concatena tal cual.
+    $fila = $wpdb->get_row( cp_sql_base() . " AND p.ID = $id GROUP BY p.ID", ARRAY_A );
+    if ( $wpdb->last_error ) {
+        // Vulnerable intencional: el error de SQL se devuelve al cliente.
+        return new WP_Error( 'cp_sql', $wpdb->last_error, array( 'status' => 500 ) );
+    }
+    return $fila;
+}
+
+$ sed -n '26,29p' plugin-consulta-pedidos/seguro/includes/consultas.php | expand -t4
+function cp_obtener_pedido( $id ) {
+    global $wpdb;
+    return $wpdb->get_row( $wpdb->prepare( cp_sql_base() . ' AND p.ID = %d GROUP BY p.ID', $id ), ARRAY_A );
+}
+

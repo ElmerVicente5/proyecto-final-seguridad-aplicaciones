@@ -1,0 +1,28 @@
+$ sed -n '18,24p' plugin-consulta-pedidos/vulnerable/includes/shortcode.php | expand -t4
+    $buscado = isset( $_GET['pedido'] ) ? wp_unslash( $_GET['pedido'] ) : '';
+
+    // Vulnerable intencional: el valor buscado se imprime sin escapar (XSS reflejado).
+    $html .= '<form method="get">
+        <label>Número de pedido <input type="text" name="pedido" value="' . $buscado . '"></label>
+        <button type="submit">Consultar</button>
+    </form>';
+
+$ sed -n '45,48p' plugin-consulta-pedidos/vulnerable/includes/shortcode.php | expand -t4
+    foreach ( cp_comentarios( $pedido['id'] ) as $comentario ) {
+        // Vulnerable intencional: el comentario guardado se imprime tal cual (XSS almacenado).
+        $html .= "<li>$comentario</li>";
+    }
+
+$ sed -n '19,24p' plugin-consulta-pedidos/seguro/includes/shortcode.php | expand -t4
+    $buscado = isset( $_GET['pedido'] ) ? absint( $_GET['pedido'] ) : 0;
+
+    $html .= '<form method="get">
+        <label>Número de pedido <input type="number" min="1" name="pedido" value="' . esc_attr( $buscado ? $buscado : '' ) . '"></label>
+        <button type="submit">Consultar</button>
+    </form>';
+
+$ sed -n '40,42p' plugin-consulta-pedidos/seguro/includes/shortcode.php | expand -t4
+    foreach ( cp_comentarios( $pedido['id'] ) as $comentario ) {
+        $html .= '<li>' . nl2br( esc_html( $comentario ) ) . '</li>';
+    }
+

@@ -1,0 +1,52 @@
+$ sed -n '6,17p' plugin-consulta-pedidos/vulnerable/includes/jwt.php | expand -t4
+// Vulnerable intencional: clave JWT fija, corta y escrita en el código.
+const CP_JWT_CLAVE = 'umg123';
+
+function cp_emitir_token( WP_User $usuario ) {
+    // Vulnerable intencional: el token no expira y lleva el rol y datos personales.
+    $datos = array(
+        'sub'   => $usuario->ID,
+        'email' => $usuario->user_email,
+        'roles' => $usuario->roles,
+    );
+    return JWT::encode( $datos, CP_JWT_CLAVE, 'HS256' );
+}
+
+$ sed -n '36,40p' plugin-consulta-pedidos/vulnerable/includes/jwt.php | expand -t4
+function cp_es_gestor( $datos ) {
+    // Vulnerable intencional: confía en el rol que trae el token en lugar de consultarlo en WordPress.
+    $roles = isset( $datos->roles ) ? (array) $datos->roles : array();
+    return (bool) array_intersect( $roles, array( 'administrator', 'shop_manager' ) );
+}
+
+$ sed -n '10,32p' plugin-consulta-pedidos/seguro/includes/jwt.php | expand -t4
+function cp_clave_jwt() {
+    $clave = (string) getenv( 'CONSULTA_PEDIDOS_JWT_SECRET' );
+    // Una clave corta se puede adivinar por fuerza bruta a partir de un token capturado.
+    return strlen( $clave ) >= 32 ? $clave : null;
+}
+
+function cp_emitir_token( WP_User $usuario ) {
+    $clave = cp_clave_jwt();
+    if ( ! $clave ) {
+        return new WP_Error( 'cp_config', 'El servicio no está disponible.', array( 'status' => 503 ) );
+    }
+
+    $ahora = time();
+    $datos = array(
+        'iss' => home_url(),
+        'aud' => CP_JWT_AUDIENCIA,
+        'iat' => $ahora,
+        'nbf' => $ahora,
+        'exp' => $ahora + CP_JWT_DURACION,
+        'sub' => $usuario->ID,
+    );
+    return JWT::encode( $datos, $clave, 'HS256' );
+}
+
+$ sed -n '62,65p' plugin-consulta-pedidos/seguro/includes/jwt.php | expand -t4
+function cp_es_gestor( WP_User $usuario ) {
+    // El permiso se consulta en WordPress, no se toma del contenido del token.
+    return user_can( $usuario, 'manage_woocommerce' );
+}
+

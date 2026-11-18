@@ -1,0 +1,367 @@
+{
+  "info": {
+    "name": "Consulta de Pedidos UMG - Pruebas de seguridad",
+    "description": "Pruebas de seguridad de la API del plugin propio contra localhost.\n\nCada prueba describe el comportamiento seguro esperado. En la versión vulnerable del plugin las pruebas que fallan son las vulnerabilidades; en la versión segura todas deben pasar.\n\nAntes de ejecutarla selecciona el entorno 'Laboratorio localhost' y escribe la contraseña de cliente1 en la variable clave_cliente. La prueba de fuerza bruta bloquea la cuenta de prueba 15 minutos en la versión segura; espera ese tiempo antes de repetir la colección completa.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
+  "variable": [
+    { "key": "token", "value": "" },
+    { "key": "pedido_propio", "value": "14" },
+    { "key": "pedido_ajeno", "value": "15" },
+    { "key": "usuario_fuerza_bruta", "value": "gestor" },
+    { "key": "intento", "value": "1" },
+    { "key": "mensaje_usuario_inexistente", "value": "" },
+    { "key": "token_falso", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Autenticación",
+      "item": [
+        {
+          "name": "1.1 Obtener token de cliente1",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Reinicia el contador de la prueba de fuerza bruta en cada ejecución completa.",
+                  "pm.collectionVariables.set('intento', 1);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const respuesta = pm.response.json();",
+                  "",
+                  "pm.test('Devuelve un token JWT', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(respuesta.token).to.be.a('string');",
+                  "});",
+                  "pm.collectionVariables.set('token', respuesta.token || '');",
+                  "",
+                  "const parte = (respuesta.token || '..').split('.')[1].replace(/-/g, '+').replace(/_/g, '/');",
+                  "const datos = JSON.parse(atob(parte + '='.repeat((4 - parte.length % 4) % 4)) || '{}');",
+                  "",
+                  "pm.test('El token tiene fecha de expiración (exp)', () => {",
+                  "    pm.expect(datos).to.have.property('exp');",
+                  "});",
+                  "pm.test('El token no expone correo ni roles', () => {",
+                  "    pm.expect(datos).to.not.have.property('email');",
+                  "    pm.expect(datos).to.not.have.property('roles');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "usuario", "value": "{{usuario_cliente}}", "type": "text" },
+                { "key": "clave", "value": "{{clave_cliente}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/token",
+            "description": "Inicia sesión como cliente1 y guarda el token para las demás peticiones."
+          }
+        },
+        {
+          "name": "1.2 Enumeración: usuario inexistente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza el login con 401', () => pm.response.to.have.status(401));",
+                  "pm.collectionVariables.set('mensaje_usuario_inexistente', pm.response.json().message);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "usuario", "value": "usuario_que_no_existe", "type": "text" },
+                { "key": "clave", "value": "incorrecta", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/token",
+            "description": "Guarda el mensaje de error para compararlo con el de un usuario que sí existe."
+          }
+        },
+        {
+          "name": "1.3 Enumeración: usuario existente con clave incorrecta",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const mensaje = pm.response.json().message;",
+                  "",
+                  "pm.test('Rechaza el login con 401', () => pm.response.to.have.status(401));",
+                  "pm.test('El mensaje es igual al de un usuario inexistente', () => {",
+                  "    pm.expect(mensaje).to.eql(pm.collectionVariables.get('mensaje_usuario_inexistente'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "usuario", "value": "admin", "type": "text" },
+                { "key": "clave", "value": "incorrecta", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/token",
+            "description": "Si el mensaje cambia según el usuario, un atacante puede saber qué cuentas existen."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Control de acceso",
+      "item": [
+        {
+          "name": "2.1 Consultar el pedido propio",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const pedido = pm.response.json();",
+                  "",
+                  "pm.test('Devuelve el pedido del cliente', () => {",
+                  "    pm.response.to.have.status(200);",
+                  "    pm.expect(String(pedido.id)).to.eql(pm.collectionVariables.get('pedido_propio'));",
+                  "});",
+                  "pm.test('No expone correo, teléfono ni dirección', () => {",
+                  "    pm.expect(pedido).to.not.have.any.keys('email', 'telefono', 'direccion');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pedido?id={{pedido_propio}}",
+              "host": ["{{base_url}}"],
+              "path": ["pedido"],
+              "query": [{ "key": "id", "value": "{{pedido_propio}}" }]
+            }
+          }
+        },
+        {
+          "name": "2.2 IDOR: consultar el pedido de otro cliente",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('No entrega pedidos de otros clientes (403 o 404)', () => {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([403, 404]);",
+                  "});",
+                  "pm.test('La respuesta no contiene datos personales', () => {",
+                  "    pm.expect(pm.response.text()).to.not.include('@');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pedido?id={{pedido_ajeno}}",
+              "host": ["{{base_url}}"],
+              "path": ["pedido"],
+              "query": [{ "key": "id", "value": "{{pedido_ajeno}}" }]
+            },
+            "description": "El pedido 15 pertenece a cliente2; cliente1 no debería poder verlo."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Inyección SQL",
+      "item": [
+        {
+          "name": "3.1 UNION SELECT sobre wp_users en el parámetro id",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza el parámetro con 400', () => pm.response.to.have.status(400));",
+                  "pm.test('No devuelve datos de la tabla wp_users', () => {",
+                  "    const cuerpo = pm.response.text();",
+                  "    pm.expect(cuerpo).to.not.include('$wp$');",
+                  "    pm.expect(cuerpo).to.not.include('admin@');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pedido?id=0%20GROUP%20BY%20p.ID%20UNION%20SELECT%20ID,user_login,user_registered,0,0,0,user_email,0,LEFT(user_pass,7),0%20FROM%20wp_users%20WHERE%20ID=1%20--%20",
+              "host": ["{{base_url}}"],
+              "path": ["pedido"],
+              "query": [
+                {
+                  "key": "id",
+                  "value": "0%20GROUP%20BY%20p.ID%20UNION%20SELECT%20ID,user_login,user_registered,0,0,0,user_email,0,LEFT(user_pass,7),0%20FROM%20wp_users%20WHERE%20ID=1%20--%20"
+                }
+              ]
+            },
+            "description": "Intenta leer el usuario, el correo y el inicio del hash de la contraseña del administrador."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Manejo de tokens JWT",
+      "item": [
+        {
+          "name": "4.1 Token falsificado con la clave umg123 y rol administrator",
+          "event": [
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Firma un token propio con la clave débil que aparece en el código vulnerable.",
+                  "const CryptoJS = require('crypto-js');",
+                  "const base64url = (palabras) => CryptoJS.enc.Base64.stringify(palabras).replace(/=+$/, '').replace(/\\+/g, '-').replace(/\\//g, '_');",
+                  "const cabecera = base64url(CryptoJS.enc.Utf8.parse(JSON.stringify({ typ: 'JWT', alg: 'HS256' })));",
+                  "const datos = base64url(CryptoJS.enc.Utf8.parse(JSON.stringify({ sub: 4, roles: ['administrator'] })));",
+                  "const firma = base64url(CryptoJS.HmacSHA256(cabecera + '.' + datos, 'umg123'));",
+                  "pm.collectionVariables.set('token_falso', cabecera + '.' + datos + '.' + firma);"
+                ]
+              }
+            },
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza el token falsificado con 401', () => pm.response.to.have.status(401));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [{ "key": "token", "value": "{{token_falso}}", "type": "string" }]
+            },
+            "method": "GET",
+            "header": [],
+            "url": "{{base_url}}/pedidos",
+            "description": "Si se acepta, cliente1 se hace pasar por administrador y obtiene los pedidos de todos."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Casos de abuso",
+      "item": [
+        {
+          "name": "5.1 Exfiltración por paginación (100000 por página)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Rechaza un tamaño de página mayor a 20 con 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/pedidos?por_pagina=100000",
+              "host": ["{{base_url}}"],
+              "path": ["pedidos"],
+              "query": [{ "key": "por_pagina", "value": "100000" }]
+            },
+            "description": "Sin un tope, una sola petición descarga todos los registros a los que se tenga acceso."
+          }
+        },
+        {
+          "name": "5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "const intento = Number(pm.collectionVariables.get('intento'));",
+                  "",
+                  "if (intento <= 5) {",
+                  "    pm.test(`Intento ${intento}: rechazado con 401`, () => pm.response.to.have.status(401));",
+                  "} else {",
+                  "    pm.test(`Intento ${intento}: cuenta bloqueada con 429`, () => pm.response.to.have.status(429));",
+                  "}",
+                  "",
+                  "// Repite esta misma petición hasta completar 7 intentos.",
+                  "if (intento < 7) {",
+                  "    pm.collectionVariables.set('intento', intento + 1);",
+                  "    pm.execution.setNextRequest(pm.info.requestName);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "usuario", "value": "{{usuario_fuerza_bruta}}", "type": "text" },
+                { "key": "clave", "value": "incorrecta-{{intento}}", "type": "text" }
+              ]
+            },
+            "url": "{{base_url}}/token",
+            "description": "La versión segura debe bloquear la cuenta tras 5 intentos fallidos. Repetirla antes de 15 minutos encuentra la cuenta ya bloqueada."
+          }
+        }
+      ]
+    }
+  ]
+}

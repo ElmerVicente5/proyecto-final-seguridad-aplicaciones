@@ -1,0 +1,51 @@
+$ sed -n '44,52p' plugin-consulta-pedidos/vulnerable/includes/api.php | expand -t4
+    // Vulnerable intencional: no verifica que el pedido sea del usuario del token (IDOR).
+    $pedido = cp_obtener_pedido( $request->get_param( 'id' ) );
+    if ( is_wp_error( $pedido ) ) {
+        return $pedido;
+    }
+    if ( ! $pedido ) {
+        return new WP_Error( 'cp_no_existe', 'El pedido no existe.', array( 'status' => 404 ) );
+    }
+    return $pedido;
+
+$ sed -n '64,71p' plugin-consulta-pedidos/vulnerable/includes/api.php | expand -t4
+    $cliente_id = cp_es_gestor( $datos ) ? 0 : (int) $datos->sub;
+    // Vulnerable intencional: por_pagina no tiene tope, permite descargar todos los pedidos de una vez.
+    return cp_listar_pedidos(
+        $cliente_id,
+        $request->get_param( 'pagina' ) ?: 1,
+        $request->get_param( 'por_pagina' ) ?: 10,
+        $request->get_param( 'orden' ) ?: 'p.ID DESC'
+    );
+
+$ sed -n '50,52p' plugin-consulta-pedidos/seguro/includes/consultas.php | expand -t4
+function cp_puede_ver( WP_User $usuario, $pedido ) {
+    return $pedido && ( cp_es_gestor( $usuario ) || (int) $pedido['cliente_id'] === $usuario->ID );
+}
+
+$ sed -n '115,124p' plugin-consulta-pedidos/seguro/includes/api.php | expand -t4
+function cp_api_pedido( WP_REST_Request $request ) {
+    $usuario = cp_usuario_token( $request );
+    $pedido  = cp_obtener_pedido( $request['id'] );
+
+    // Se responde igual si el pedido no existe o es de otro cliente, para no revelar qué pedidos existen.
+    if ( ! cp_puede_ver( $usuario, $pedido ) ) {
+        return new WP_Error( 'cp_no_existe', 'El pedido no existe.', array( 'status' => 404 ) );
+    }
+    return cp_vista_pedido( $usuario, $pedido );
+}
+
+$ sed -n '92,102p' plugin-consulta-pedidos/seguro/includes/api.php | expand -t4
+    $intentos = (int) get_transient( $llave );
+    if ( $intentos >= CP_MAX_INTENTOS ) {
+        return new WP_Error( 'cp_bloqueado', 'Demasiados intentos. Intenta más tarde.', array( 'status' => 429 ) );
+    }
+
+    $resultado = wp_authenticate( $usuario, $request['clave'] );
+    if ( is_wp_error( $resultado ) ) {
+        set_transient( $llave, $intentos + 1, CP_BLOQUEO );
+        // Mismo mensaje si falla el usuario o la contraseña, para no revelar cuentas existentes.
+        return new WP_Error( 'cp_login', 'Usuario o contraseña incorrectos.', array( 'status' => 401 ) );
+    }
+

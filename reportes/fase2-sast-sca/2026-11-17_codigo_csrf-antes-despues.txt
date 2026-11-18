@@ -1,0 +1,22 @@
+$ sed -n '12,16p' plugin-consulta-pedidos/vulnerable/includes/shortcode.php | expand -t4
+    if ( isset( $_POST['cp_pedido'], $_POST['cp_comentario'] ) ) {
+        // Vulnerable intencional: sin nonce (CSRF), sin validar el dueño y el texto se guarda sin sanitizar.
+        cp_agregar_comentario( $_POST['cp_pedido'], $_POST['cp_comentario'] );
+        $html .= '<p>Comentario agregado.</p>';
+    }
+
+$ sed -n '45,47p' plugin-consulta-pedidos/seguro/includes/shortcode.php | expand -t4
+    $html .= '<form method="post">'
+        . wp_nonce_field( 'cp_comentar_' . $pedido['id'], 'cp_nonce', true, false )
+        . '<input type="hidden" name="cp_pedido" value="' . esc_attr( $pedido['id'] ) . '">
+
+$ sed -n '58,65p' plugin-consulta-pedidos/seguro/includes/shortcode.php | expand -t4
+function cp_procesar_comentario( WP_User $usuario ) {
+    $pedido_id = absint( $_POST['cp_pedido'] );
+    $nonce     = isset( $_POST['cp_nonce'] ) ? sanitize_text_field( wp_unslash( $_POST['cp_nonce'] ) ) : '';
+
+    // El nonce confirma que el formulario salió de esta página y no de un sitio externo (CSRF).
+    if ( ! wp_verify_nonce( $nonce, 'cp_comentar_' . $pedido_id ) ) {
+        return 'La solicitud no es válida. Recarga la página e intenta de nuevo.';
+    }
+

@@ -1,0 +1,112 @@
+$ postman collection run postman/consulta-pedidos.postman_collection.json -e postman/laboratorio-localhost.postman_environment.json --env-var "clave_cliente=****"
+
+Running your collection...
+postman
+
+Consulta de Pedidos UMG - Pruebas de seguridad
+
+Folder 1. Autenticación
+Sub-folder 1.1 Obtener token de cliente1
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [200 OK, 807 B, 860 ms]
+  Pass  Devuelve un token JWT
+  Pass  El token tiene fecha de expiración (exp)
+  Pass  El token no expone correo ni roles
+
+Sub-folder 1.2 Enumeración: usuario inexistente
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 644 B, 73 ms]
+  Pass  Rechaza el login con 401
+
+Sub-folder 1.3 Enumeración: usuario existente con clave incorrecta
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 644 B, 110 ms]
+  Pass  Rechaza el login con 401
+  Pass  El mensaje es igual al de un usuario inexistente
+
+Folder 2. Control de acceso
+Sub-folder 2.1 Consultar el pedido propio
+
+  GET http://localhost:8080/wp-json/consulta-pedidos/v1/pedido?id=14 [200 OK, 677 B, 66 ms]
+  Pass  Devuelve el pedido del cliente
+  Pass  No expone correo, teléfono ni dirección
+
+Sub-folder 2.2 IDOR: consultar el pedido de otro cliente
+
+  GET http://localhost:8080/wp-json/consulta-pedidos/v1/pedido?id=15 [404 Not Found, 640 B, 62 ms]
+  Pass  No entrega pedidos de otros clientes (403 o 404)
+  Pass  La respuesta no contiene datos personales
+
+Folder 3. Inyección SQL
+Sub-folder 3.1 UNION SELECT sobre wp_users en el parámetro id
+
+  GET http://localhost:8080/wp-json/consulta-pedidos/v1/pedido?id=0%20GROUP%20BY%20p.ID%20UNION%20SELECT%20ID,user_login,user_registered,0,0,0,user_email,0,LEFT(user_pass,7),0%20FROM%20wp_users%20WHERE%20ID=1%20--%20 [400 Bad Request, 784 B, 69 ms]
+  Pass  Rechaza el parámetro con 400
+  Pass  No devuelve datos de la tabla wp_users
+
+Folder 4. Manejo de tokens JWT
+Sub-folder 4.1 Token falsificado con la clave umg123 y rol administrator
+
+  GET http://localhost:8080/wp-json/consulta-pedidos/v1/pedidos [401 Unauthorized, 639 B, 96 ms]
+  Pass  Rechaza el token falsificado con 401
+
+Folder 5. Casos de abuso
+Sub-folder 5.1 Exfiltración por paginación (100000 por página)
+
+  GET http://localhost:8080/wp-json/consulta-pedidos/v1/pedidos?por_pagina=100000 [400 Bad Request, 859 B, 70 ms]
+  Pass  Rechaza un tamaño de página mayor a 20 con 400
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 645 B, 146 ms]
+  Pass  Intento 1: rechazado con 401
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 644 B, 113 ms]
+  Pass  Intento 2: rechazado con 401
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 644 B, 123 ms]
+  Pass  Intento 3: rechazado con 401
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 644 B, 127 ms]
+  Pass  Intento 4: rechazado con 401
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [401 Unauthorized, 644 B, 107 ms]
+  Pass  Intento 5: rechazado con 401
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [429 Too Many Requests, 660 B, 61 ms]
+  Pass  Intento 6: cuenta bloqueada con 429
+
+Sub-folder 5.2 Fuerza bruta: 7 contraseñas incorrectas seguidas
+
+  POST http://localhost:8080/wp-json/consulta-pedidos/v1/token [429 Too Many Requests, 660 B, 69 ms]
+  Pass  Intento 7: cuenta bloqueada con 429
+
+-------------------------------------------------------------------------
+|                         |             executed |               failed |
+--------------------------+----------------------+-----------------------
+|              iterations |                    1 |                    0 |
+--------------------------+----------------------+-----------------------
+|                requests |                   15 |                    0 |
+--------------------------+----------------------+-----------------------
+|            test-scripts |                   15 |                    0 |
+--------------------------+----------------------+-----------------------
+|      prerequest-scripts |                    2 |                    0 |
+--------------------------+----------------------+-----------------------
+|              assertions |                   21 |                    0 |
+-------------------------------------------------------------------------
+| total run duration: 3.3 s                                             |
+-------------------------------------------------------------------------
+| total data received: 1.93 KB (approx)                                 |
+-------------------------------------------------------------------------
+| average response time: 143 ms [min: 61 ms, max: 860 ms, s.d.: 193 ms] |
+-------------------------------------------------------------------------

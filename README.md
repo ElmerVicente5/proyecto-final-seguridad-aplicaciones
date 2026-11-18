@@ -85,6 +85,40 @@ curl "$API/pedido?id=14" -H "Authorization: Bearer <token>"
 curl "$API/pedidos?pagina=1&por_pagina=10" -H "Authorization: Bearer <token>"
 ```
 
+## Pruebas de seguridad de la API con Postman
+
+La carpeta [postman/](postman/) tiene la colección `consulta-pedidos.postman_collection.json` y el
+entorno `laboratorio-localhost.postman_environment.json`. Cada prueba describe el comportamiento
+seguro esperado, así que **en la versión vulnerable fallan 12 de 21 aserciones** (una por cada
+vulnerabilidad) y **en la segura pasan todas**.
+
+| Carpeta | Pruebas |
+|---|---|
+| 1. Autenticación | Token con expiración y sin datos personales, enumeración de usuarios |
+| 2. Control de acceso | Pedido propio sin datos sensibles, IDOR sobre el pedido de otro cliente |
+| 3. Inyección SQL | `UNION SELECT` sobre `wp_users` |
+| 4. Manejo de tokens JWT | Token falsificado con la clave débil y rol de administrador |
+| 5. Casos de abuso | Exfiltración por paginación y fuerza bruta (7 intentos) |
+
+En la app de Postman: **Import** de los dos archivos, selecciona el entorno **Laboratorio localhost**,
+escribe la contraseña de `cliente1` (`CLIENTE_PASSWORD` del `.env`) en `clave_cliente` y ejecuta la
+colección con **Run collection**.
+
+Desde la terminal con la CLI de Postman:
+
+```bash
+postman collection run postman/consulta-pedidos.postman_collection.json \
+  -e postman/laboratorio-localhost.postman_environment.json \
+  --env-var "clave_cliente=$(grep '^CLIENTE_PASSWORD=' .env | cut -d= -f2)"
+```
+
+La prueba de fuerza bruta deja bloqueada la cuenta `gestor` 15 minutos en la versión segura. Para
+repetir la colección antes de ese tiempo, borra los bloqueos con:
+
+```bash
+docker compose run --rm wpcli wp transient delete --all
+```
+
 ## Pipeline DevSecOps
 
 [.github/workflows/devsecops.yml](.github/workflows/devsecops.yml) se ejecuta en GitHub Actions en
@@ -151,6 +185,7 @@ docker compose down -v        # elimina contenedores y los volúmenes db_data y 
 │   ├── instalar-wordpress.sh  # instalación con WP-CLI (corre dentro del contenedor wpcli)
 │   └── escanear-fase2.sh      # SAST y SCA en local
 ├── plugin-consulta-pedidos/   # plugin propio: vulnerable/ y seguro/ (fase 2)
+├── postman/                   # colección y entorno de pruebas de seguridad de la API
 ├── .semgrep/                  # reglas propias de Semgrep para WordPress
 ├── .github/workflows/         # pipeline DevSecOps (fase 2)
 ├── waf/                       # ModSecurity + OWASP CRS (fase 5)
