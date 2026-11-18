@@ -12,8 +12,8 @@
   },
   "variable": [
     { "key": "token", "value": "" },
-    { "key": "pedido_propio", "value": "14" },
-    { "key": "pedido_ajeno", "value": "15" },
+    { "key": "pedido_propio", "value": "15" },
+    { "key": "pedido_ajeno", "value": "16" },
     { "key": "usuario_fuerza_bruta", "value": "gestor" },
     { "key": "intento", "value": "1" },
     { "key": "mensaje_usuario_inexistente", "value": "" },
@@ -58,6 +58,17 @@
                   "pm.test('El token no expone correo ni roles', () => {",
                   "    pm.expect(datos).to.not.have.property('email');",
                   "    pm.expect(datos).to.not.have.property('roles');",
+                  "});",
+                  "",
+                  "// Descubre el pedido propio y toma el ID vecino como pedido ajeno (tecnica IDOR), para no depender de IDs fijos.",
+                  "pm.sendRequest({ url: pm.variables.replaceIn('{{base_url}}/pedidos?por_pagina=20'), method: 'GET', header: { Authorization: 'Bearer ' + (respuesta.token || '') } }, (err, res) => {",
+                  "    if (err || res.code !== 200) { return; }",
+                  "    const pedidos = res.json();",
+                  "    if (Array.isArray(pedidos) && pedidos.length) {",
+                  "        const propio = Math.min(...pedidos.map(p => Number(p.id)));",
+                  "        pm.collectionVariables.set('pedido_propio', String(propio));",
+                  "        pm.collectionVariables.set('pedido_ajeno', String(propio + 1));",
+                  "    }",
                   "});"
                 ]
               }

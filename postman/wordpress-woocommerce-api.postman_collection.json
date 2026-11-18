@@ -155,8 +155,8 @@
           "request": {
             "method": "GET",
             "header": [],
-            "url": "{{sitio}}/wp-json/wc/store/v1/order/15",
-            "description": "Prueba de BOLA sobre la API pública de la tienda: el pedido 15 es de cliente2."
+            "url": "{{sitio}}/wp-json/wc/store/v1/order/16",
+            "description": "Prueba de BOLA sobre la API pública de la tienda: se pide un pedido de otro cliente sin su clave."
           }
         },
         {
