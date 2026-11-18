@@ -1,0 +1,4 @@
+$ docker compose ps --format 'table {{.Name}}\t{{.Image}}\t{{.Status}}\t{{.Ports}}'
+NAME            IMAGE                           STATUS                  PORTS
+umg-db          mysql:8.4.13                    Up 13 hours (healthy)   127.0.0.1:3306->3306/tcp
+umg-wordpress   wordpress:7.1.4-php8.3-apache   Up 13 hours             127.0.0.1:8080->80/tcp

@@ -1,0 +1,7 @@
+$ docker compose run --rm wpcli wp user list --fields=ID,user_login,roles
+ID	user_login	roles
+1	admin	administrator
+4	cliente1	customer
+5	cliente2	customer
+3	editor	editor
+2	gestor	shop_manager

@@ -102,9 +102,7 @@ docker compose down -v        # elimina contenedores y los volúmenes db_data y 
 ├── .github/workflows/         # pipeline DevSecOps (fase 2)
 ├── waf/                       # ModSecurity + OWASP CRS (fase 5)
 ├── reportes/                  # salidas de herramientas por fase
-├── evidencias/                # capturas y registro de evidencias
-├── docs/                      # diagramas, inventario, STRIDE/DREAD, matrices
-└── informe/                   # informe final
+└── docs/                      # diagramas de arquitectura y lista técnica de hallazgos
 ```
 
 ## Debilidades intencionales de la línea base

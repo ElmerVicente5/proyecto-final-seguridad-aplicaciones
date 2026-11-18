@@ -12,6 +12,12 @@ mysql/
 *.sql
 *.sql.gz
 
+# Evidencias y Word de entrega: solo se usan en local y se comparten aparte con el equipo
+evidencias/
+informe/
+scripts/generar_evidencias.py
+requirements.txt
+
 # Reportes que contienen credenciales, cookies o tokens capturados
 reportes/**/*_sensible.*
 reportes/**/*.har
@@ -26,6 +32,9 @@ desktop.ini
 .vscode/*
 !.vscode/extensions.json
 .idea/
+
+# Archivos temporales del MCP de Playwright
+.playwright-mcp/
 
 # Temporales de Office
 ~$*
