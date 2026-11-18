@@ -12,6 +12,11 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
+echo "Instalando dependencias PHP del plugin..."
+for version in vulnerable seguro; do
+  docker compose run --rm composer install -d "$version" --no-dev --no-interaction --no-progress
+done
+
 echo "Levantando db y wordpress..."
 docker compose up -d --wait db wordpress
 

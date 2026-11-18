@@ -15,6 +15,7 @@ desarrollo seguro: evaluar, atacar, corregir y madurar una aplicación e-commerc
 | `db` | `mysql:8.4.13` | Base de datos (volumen `db_data`, healthcheck) |
 | `wordpress` | `wordpress:7.1.4-php8.3-apache` | Sitio en <http://localhost:8080> (volumen `wp_html`) |
 | `wpcli` | `wordpress:cli-2.12.0-php8.3` | Administración con WP-CLI (perfil `herramientas`, se usa con `docker compose run`) |
+| `composer` | `composer:2.11.2` | Instala las dependencias PHP del plugin propio (perfil `herramientas`) |
 
 WooCommerce se instala con WP-CLI en la versión fijada en `.env` (`WOOCOMMERCE_VERSION`, por defecto 11.3.0).
 
@@ -53,6 +54,56 @@ Con `CREAR_DATOS_EJEMPLO=1` también crea 4 productos y 3 pedidos (uno de `clien
 - Tienda: <http://localhost:8080>
 - Administración: <http://localhost:8080/wp-admin>
 - API REST de WooCommerce: <http://localhost:8080/wp-json/wc/v3/>
+- Consulta de pedidos (plugin propio): <http://localhost:8080/consultar-pedido/>
+- API REST del plugin: <http://localhost:8080/wp-json/consulta-pedidos/v1/>
+
+## Plugin propio: Consulta de Pedidos
+
+El plugin [plugin-consulta-pedidos/](plugin-consulta-pedidos/) permite que un cliente consulte sus
+pedidos por API REST (con token JWT) y desde la página "Consultar pedido", donde también puede dejar
+comentarios. Tiene dos versiones con los mismos archivos para compararlas:
+
+| Archivo | `vulnerable/` (antes) | `seguro/` (después) |
+|---|---|---|
+| `includes/jwt.php` | Clave fija y débil, token sin expiración, confía en el rol del token, php-jwt 5.5.1 con CVE | Clave desde `.env`, expira en 15 min, valida emisor y audiencia, php-jwt 7.2.2 |
+| `includes/consultas.php` | SQL concatenado (inyección SQL) | `$wpdb->prepare` y lista blanca para el orden |
+| `includes/api.php` | Sin control del dueño del pedido (IDOR), paginación sin tope, login sin límite | Control del dueño, máximo 20 por página, 5 intentos cada 15 min |
+| `includes/shortcode.php` | Salida sin escapar (XSS), formulario sin nonce (CSRF) | `esc_html`/`esc_attr`, sanitización y nonce |
+
+Para cambiar de versión, edita `PLUGIN_VERSION` en `.env` (`vulnerable` o `seguro`) y ejecuta:
+
+```bash
+docker compose up -d
+```
+
+API del plugin:
+
+```bash
+API=http://localhost:8080/wp-json/consulta-pedidos/v1
+curl -X POST $API/token -d usuario=cliente1 -d clave=<CLIENTE_PASSWORD>   # devuelve un token
+curl "$API/pedido?id=14" -H "Authorization: Bearer <token>"
+curl "$API/pedidos?pagina=1&por_pagina=10" -H "Authorization: Bearer <token>"
+```
+
+## Pipeline DevSecOps
+
+[.github/workflows/devsecops.yml](.github/workflows/devsecops.yml) se ejecuta en GitHub Actions en
+cada push a `main` y en cada pull request:
+
+- **SAST con Semgrep:** reglas propias para WordPress ([.semgrep/wordpress.yml](.semgrep/wordpress.yml))
+  más los conjuntos `p/php`, `p/owasp-top-ten` y `p/secrets`.
+- **SCA con Trivy:** busca CVE en las dependencias declaradas en `composer.lock`.
+
+Ambos analizan las dos versiones del plugin. La versión **segura** es la barrera: si tiene hallazgos
+ERROR o vulnerabilidades HIGH/CRITICAL el pipeline falla. En la vulnerable solo se reportan. Los
+resultados quedan en el resumen de cada ejecución, como artefactos descargables y en
+**Security → Code scanning**.
+
+Para correr los mismos análisis en local y guardar los reportes en `reportes/fase2-sast-sca/`:
+
+```bash
+./scripts/escanear-fase2.sh
+```
 
 ## Verificar
 
@@ -97,8 +148,10 @@ docker compose down -v        # elimina contenedores y los volúmenes db_data y 
 ├── .env.example               # plantilla de variables (el .env real no se versiona)
 ├── scripts/
 │   ├── instalar.sh            # levanta el entorno y lanza la instalación
-│   └── instalar-wordpress.sh  # instalación con WP-CLI (corre dentro del contenedor wpcli)
+│   ├── instalar-wordpress.sh  # instalación con WP-CLI (corre dentro del contenedor wpcli)
+│   └── escanear-fase2.sh      # SAST y SCA en local
 ├── plugin-consulta-pedidos/   # plugin propio: vulnerable/ y seguro/ (fase 2)
+├── .semgrep/                  # reglas propias de Semgrep para WordPress
 ├── .github/workflows/         # pipeline DevSecOps (fase 2)
 ├── waf/                       # ModSecurity + OWASP CRS (fase 5)
 ├── reportes/                  # salidas de herramientas por fase

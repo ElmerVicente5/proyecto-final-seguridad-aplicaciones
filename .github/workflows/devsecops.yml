@@ -1,0 +1,144 @@
+# Pipeline DevSecOps: SAST con Semgrep y SCA con Trivy sobre las dos versiones del plugin.
+# La versión segura funciona como barrera: si tiene hallazgos graves el pipeline falla.
+name: DevSecOps
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: devsecops-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  SEMGREP_IMAGE: semgrep/semgrep:1.186.0
+  TRIVY_IMAGE: aquasec/trivy:0.76.2
+
+jobs:
+  sast:
+    name: SAST Semgrep (${{ matrix.version }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [vulnerable, seguro]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Ejecutar Semgrep
+        run: |
+          mkdir -p resultados
+          docker run --rm --user "$(id -u):$(id -g)" -e HOME=/tmp -v "$PWD:/src" -w /src "$SEMGREP_IMAGE" semgrep scan \
+            --metrics=off \
+            --config .semgrep/wordpress.yml \
+            --config p/php --config p/owasp-top-ten --config p/secrets \
+            --exclude vendor \
+            --sarif-output=resultados/semgrep.sarif \
+            --json-output=resultados/semgrep.json \
+            --text-output=resultados/semgrep.txt \
+            "plugin-consulta-pedidos/${{ matrix.version }}"
+
+      - name: Resumen de hallazgos
+        run: |
+          {
+            echo "## SAST Semgrep: plugin ${{ matrix.version }}"
+            echo
+            echo "| Severidad | Regla | Archivo |"
+            echo "|---|---|---|"
+            jq -r '.results[] | "| \(.extra.severity) | \(.check_id | split(".") | last) | \(.path):\(.start.line) |"' resultados/semgrep.json
+            echo
+            echo "Total: $(jq '.results | length' resultados/semgrep.json) hallazgos."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar en Code scanning
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: resultados/semgrep.sarif
+          category: semgrep-${{ matrix.version }}
+
+      - name: Guardar reportes
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sast-semgrep-${{ matrix.version }}
+          path: resultados/
+
+      - name: Barrera de seguridad (sin hallazgos ERROR)
+        # En la versión vulnerable los hallazgos son intencionales, así que solo se avisan.
+        continue-on-error: ${{ matrix.version == 'vulnerable' }}
+        run: |
+          errores=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' resultados/semgrep.json)
+          if [ "$errores" -gt 0 ]; then
+            echo "::error::Semgrep encontró $errores hallazgos de severidad ERROR en la versión ${{ matrix.version }}."
+            exit 1
+          fi
+          echo "Sin hallazgos de severidad ERROR."
+
+  sca:
+    name: SCA Trivy (${{ matrix.version }})
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        version: [vulnerable, seguro]
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Ejecutar Trivy sobre composer.lock
+        run: |
+          mkdir -p resultados /tmp/trivy
+          ruta="/src/plugin-consulta-pedidos/${{ matrix.version }}"
+          trivy() { docker run --rm --user "$(id -u):$(id -g)" -v "$PWD:/src" -v /tmp/trivy:/cache "$TRIVY_IMAGE" --cache-dir /cache "$@"; }
+          trivy fs --quiet --scanners vuln --format json --output /src/resultados/trivy.json "$ruta"
+          trivy fs --quiet --scanners vuln --format sarif --output /src/resultados/trivy.sarif "$ruta"
+          trivy fs --quiet --scanners vuln --format table --output /src/resultados/trivy.txt "$ruta"
+
+      - name: Resumen de vulnerabilidades
+        run: |
+          {
+            echo "## SCA Trivy: plugin ${{ matrix.version }}"
+            echo
+            echo "| Severidad | CVE | Paquete | Instalada | Corregida en |"
+            echo "|---|---|---|---|---|"
+            jq -r '.Results[]?.Vulnerabilities[]? | "| \(.Severity) | \(.VulnerabilityID) | \(.PkgName) | \(.InstalledVersion) | \(.FixedVersion // "-") |"' resultados/trivy.json
+            echo
+            echo "Total: $(jq '[.Results[]?.Vulnerabilities[]?] | length' resultados/trivy.json) vulnerabilidades."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Publicar en Code scanning
+        uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
+        with:
+          sarif_file: resultados/trivy.sarif
+          category: trivy-${{ matrix.version }}
+
+      - name: Guardar reportes
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: sca-trivy-${{ matrix.version }}
+          path: resultados/
+
+      - name: Barrera de seguridad (sin vulnerabilidades HIGH o CRITICAL)
+        continue-on-error: ${{ matrix.version == 'vulnerable' }}
+        run: |
+          graves=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' resultados/trivy.json)
+          if [ "$graves" -gt 0 ]; then
+            echo "::error::Trivy encontró $graves vulnerabilidades HIGH o CRITICAL en las dependencias de la versión ${{ matrix.version }}."
+            exit 1
+          fi
+          echo "Sin vulnerabilidades HIGH o CRITICAL."

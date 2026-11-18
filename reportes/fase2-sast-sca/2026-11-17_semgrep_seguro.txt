@@ -1,0 +1,23 @@
+                  
+                  
+┌────────────────┐
+│ 1 Code Finding │
+└────────────────┘
+                                                   
+    plugin-consulta-pedidos/seguro/includes/api.php
+     ❱ semgrep.wp-rest-ruta-publica
+          ❰❰ Blocking ❱❱
+          La ruta REST no exige permisos (permission_callback = __return_true); confirma que deba ser pública
+          y que la autorización se valide en otro punto.                                                     
+                                                                                                             
+           14┆ array(
+           15┆    'methods'             => 'POST',
+           16┆    'callback'            => 'cp_api_token',
+           17┆    'permission_callback' => '__return_true',
+           18┆    'args'                => array(
+           19┆            'usuario' => array(
+           20┆                    'type'     => 'string',
+           21┆                    'required' => true,
+           22┆            ),
+           23┆            'clave'   => array(
+             [hid 5 additional lines, adjust with --max-lines-per-finding] 

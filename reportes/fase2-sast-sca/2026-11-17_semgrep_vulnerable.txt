@@ -1,0 +1,85 @@
+                    
+                    
+┌──────────────────┐
+│ 12 Code Findings │
+└──────────────────┘
+                                                       
+    plugin-consulta-pedidos/vulnerable/includes/api.php
+     ❱ semgrep.wp-rest-ruta-publica
+          ❰❰ Blocking ❱❱
+          La ruta REST no exige permisos (permission_callback = __return_true); confirma que deba ser pública
+          y que la autorización se valide en otro punto.                                                     
+                                                                                                             
+           16┆ array(
+           17┆    'methods'             => $metodo,
+           18┆    'callback'            => $funcion,
+           19┆    'permission_callback' => '__return_true',
+           20┆ )
+                                                             
+    plugin-consulta-pedidos/vulnerable/includes/consultas.php
+   ❯❯❱ semgrep.wp-sqli-wpdb-sin-prepare
+          ❰❰ Blocking ❱❱
+          La consulta se envía a $wpdb sin pasar por $wpdb->prepare(); si incluye datos del usuario permite
+          inyección SQL.                                                                                   
+                                                                                                           
+           23┆ $fila = $wpdb->get_row( cp_sql_base() . " AND p.ID = $id GROUP BY p.ID", ARRAY_A );
+   
+    ❯❱ semgrep.wp-error-sql-expuesto
+          ❰❰ Blocking ❱❱
+          El error de la base de datos se devuelve al cliente; revela la estructura de las consultas y
+          facilita la inyección SQL.                                                                  
+                                                                                                      
+           26┆ return new WP_Error( 'cp_sql', $wpdb->last_error, array( 'status' => 500 ) );
+   
+   ❯❯❱ semgrep.wp-sqli-wpdb-sin-prepare
+          ❰❰ Blocking ❱❱
+          La consulta se envía a $wpdb sin pasar por $wpdb->prepare(); si incluye datos del usuario permite
+          inyección SQL.                                                                                   
+                                                                                                           
+           41┆ $filas = $wpdb->get_results( $sql, ARRAY_A );
+   
+    ❯❱ semgrep.wp-error-sql-expuesto
+          ❰❰ Blocking ❱❱
+          El error de la base de datos se devuelve al cliente; revela la estructura de las consultas y
+          facilita la inyección SQL.                                                                  
+                                                                                                      
+           43┆ return new WP_Error( 'cp_sql', $wpdb->last_error, array( 'status' => 500 ) );
+                                                       
+    plugin-consulta-pedidos/vulnerable/includes/jwt.php
+   ❯❯❱ semgrep.wp-secreto-en-codigo
+          ❰❰ Blocking ❱❱
+          Hay una clave o secreto escrito en el código; debe leerse de una variable de entorno o de la
+          configuración y tener longitud suficiente.                                                  
+                                                                                                      
+            7┆ const CP_JWT_CLAVE = 'umg123';
+                                                             
+    plugin-consulta-pedidos/vulnerable/includes/shortcode.php
+   ❯❯❱ semgrep.wp-csrf-post-sin-nonce
+          ❰❰ Blocking ❱❱
+          La función usa datos de $_POST para cambiar información sin verificar un nonce con wp_verify_nonce()
+          o check_admin_referer(); permite CSRF.                                                              
+                                                                                                              
+           14┆ cp_agregar_comentario( $_POST['cp_pedido'], $_POST['cp_comentario'] );
+   
+   ❯❯❱ semgrep.wp-xss-salida-sin-escapar
+          ❰❰ Blocking ❱❱
+          Un dato que viene de la petición o de la base de datos llega al HTML sin esc_html(), esc_attr() u
+          otra función de escape; permite XSS.                                                             
+                                                                                                           
+           21┆ $html .= '<form method="get">
+           22┆    <label>Número de pedido <input type="text" name="pedido" value="' . $buscado .
+               '"></label>                                                                      
+           23┆    <button type="submit">Consultar</button>
+           24┆ </form>';
+            ⋮┆----------------------------------------
+           30┆ $html  .= "<h3>Resultado para el pedido $buscado</h3>";
+            ⋮┆----------------------------------------
+           42┆ $html .= "<tr><th>$campo</th><td>$valor</td></tr>";
+            ⋮┆----------------------------------------
+           47┆ $html .= "<li>$comentario</li>";
+            ⋮┆----------------------------------------
+           51┆ $html .= '<form method="post">
+           52┆    <input type="hidden" name="cp_pedido" value="' . $pedido['id'] . '">
+           53┆    <label>Agregar comentario <textarea name="cp_comentario"></textarea></label>
+           54┆    <button type="submit">Enviar</button>
+           55┆ </form>';

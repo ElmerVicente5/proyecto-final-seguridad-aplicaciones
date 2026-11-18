@@ -45,11 +45,15 @@ services:
       WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
       # Vulnerable intencional: modo depuración activo que muestra errores PHP.
       WORDPRESS_DEBUG: "1"
+      # Solo la usa la versión segura del plugin; la vulnerable tiene su clave escrita en el código.
+      CONSULTA_PEDIDOS_JWT_SECRET: ${CONSULTA_PEDIDOS_JWT_SECRET:-}
     # Vulnerable intencional: solo HTTP, sin TLS ni WAF delante.
     ports:
       - "127.0.0.1:8080:80"
     volumes:
       - wp_html:/var/www/html
+      # PLUGIN_VERSION elige qué carpeta del plugin se monta: vulnerable o seguro.
+      - ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro
     # Vulnerable intencional: arranca como root, sin read_only ni límites de recursos.
 
   wpcli:
@@ -79,8 +83,17 @@ services:
       CREAR_DATOS_EJEMPLO: ${CREAR_DATOS_EJEMPLO:-1}
     volumes:
       - wp_html:/var/www/html
+      - ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro
       - ./scripts:/scripts:ro
     working_dir: /var/www/html
+
+  composer:
+    # Instala las dependencias PHP del plugin: docker compose run --rm composer install -d vulnerable
+    image: composer:2.11.2
+    profiles: ["herramientas"]
+    volumes:
+      - ./plugin-consulta-pedidos:/app
+    working_dir: /app
 
 volumes:
   db_data:

@@ -1,0 +1,149 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.76.2"
+  },
+  "ReportID": "01a1ecc5-3c4d-7473-a5f0-6922046d6eb0",
+  "CreatedAt": "2026-11-18T03:48:31.437292647Z",
+  "ArtifactName": "/src/plugin-consulta-pedidos/vulnerable",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "composer.lock",
+      "Class": "lang-pkgs",
+      "Type": "composer",
+      "Packages": [
+        {
+          "ID": "firebase/php-jwt@v5.5.1",
+          "Name": "firebase/php-jwt",
+          "Identifier": {
+            "PURL": "pkg:composer/firebase/php-jwt@v5.5.1",
+            "UID": "a69fdac3c3aae0bc"
+          },
+          "Version": "v5.5.1",
+          "Licenses": [
+            "BSD-3-Clause"
+          ],
+          "Relationship": "direct",
+          "Locations": [
+            {
+              "StartLine": 9,
+              "EndLine": 66
+            }
+          ],
+          "AnalyzedBy": "composer"
+        }
+      ],
+      "Vulnerabilities": [
+        {
+          "VulnerabilityID": "CVE-2021-46743",
+          "PkgID": "firebase/php-jwt@v5.5.1",
+          "PkgName": "firebase/php-jwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:composer/firebase/php-jwt@v5.5.1",
+            "UID": "a69fdac3c3aae0bc"
+          },
+          "InstalledVersion": "v5.5.1",
+          "FixedVersion": "6.0.0",
+          "Status": "fixed",
+          "SeveritySource": "nvd",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2021-46743",
+          "DataSource": {
+            "ID": "php-security-advisories",
+            "Name": "PHP Security Advisories Database",
+            "URL": "https://github.com/FriendsOfPHP/security-advisories"
+          },
+          "Fingerprint": "sha256:e2f7398451798829e2455a66b8ca0b9ce7931918314c00cc1ab6eb38f39ba01f",
+          "Title": "Key/algorithm type confusion",
+          "Description": "In Firebase PHP-JWT before 6.0.0, an algorithm-confusion issue (e.g., RS256 / HS256) exists via the kid (aka Key ID) header, when multiple types of keys are loaded in a key ring. This allows an attacker to forge tokens that validate under the incorrect key. NOTE: this provides a straightforward way to use the PHP-JWT library unsafely, but might not be considered a vulnerability in the library itself.",
+          "Severity": "CRITICAL",
+          "CweIDs": [
+            "CWE-843"
+          ],
+          "VendorSeverity": {
+            "ghsa": 4,
+            "nvd": 4
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V3Score": 9.1
+            },
+            "nvd": {
+              "V2Vector": "AV:N/AC:M/Au:N/C:P/I:P/A:N",
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:N",
+              "V2Score": 5.8,
+              "V3Score": 9.1
+            }
+          },
+          "References": [
+            "https://github.com/FriendsOfPHP/security-advisories/blob/master/firebase/php-jwt/CVE-2021-46743.yaml",
+            "https://github.com/advisories/GHSA-8xf4-w7qw-pjjw",
+            "https://github.com/firebase/php-jwt",
+            "https://github.com/firebase/php-jwt/issues/351",
+            "https://github.com/firebase/php-jwt/releases/tag/v6.0.0",
+            "https://nvd.nist.gov/vuln/detail/CVE-2021-46743"
+          ],
+          "PublishedDate": "2022-03-29T07:15:07.017Z",
+          "LastModifiedDate": "2026-06-17T04:15:25.123Z"
+        },
+        {
+          "VulnerabilityID": "CVE-2025-45769",
+          "VendorIDs": [
+            "GHSA-2x45-7fc3-mxwq"
+          ],
+          "PkgID": "firebase/php-jwt@v5.5.1",
+          "PkgName": "firebase/php-jwt",
+          "PkgIdentifier": {
+            "PURL": "pkg:composer/firebase/php-jwt@v5.5.1",
+            "UID": "a69fdac3c3aae0bc"
+          },
+          "InstalledVersion": "v5.5.1",
+          "FixedVersion": "7.0.0",
+          "Status": "fixed",
+          "SeveritySource": "ghsa",
+          "PrimaryURL": "https://avd.aquasec.com/nvd/cve-2025-45769",
+          "DataSource": {
+            "ID": "ghsa",
+            "Name": "GitHub Security Advisory Composer",
+            "URL": "https://github.com/advisories?query=type%3Areviewed+ecosystem%3Acomposer"
+          },
+          "Fingerprint": "sha256:0f294a33c5c9449a54c0a6f88bd30fad19eef471372b82e098fd566a339397b1",
+          "Title": "php-jwt contains weak encryption",
+          "Description": "php-jwt v6.11.0 was discovered to contain weak encryption. NOTE: this issue has been disputed on the basis that key lengths are expected to be set by an application, not by this library. This dispute is subject to review under CNA rules 4.1.4, 4.1.14, and other rules; the dispute tagging is not meant to recommend an outcome for this CVE Record.",
+          "Severity": "LOW",
+          "CweIDs": [
+            "CWE-326"
+          ],
+          "VendorSeverity": {
+            "ghsa": 1
+          },
+          "CVSS": {
+            "ghsa": {
+              "V3Vector": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:L/I:L/A:N",
+              "V40Vector": "CVSS:4.0/AV:N/AC:L/AT:N/PR:N/UI:N/VC:L/VI:L/VA:N/SC:N/SI:N/SA:N/E:U",
+              "V3Score": 6.5,
+              "V40Score": 2.7
+            }
+          },
+          "References": [
+            "https://gist.github.com/ZupeiNie/83756316c4c24fe97a50176a92608db3",
+            "https://github.com/advisories/GHSA-2x45-7fc3-mxwq",
+            "https://github.com/firebase",
+            "https://github.com/firebase/php-jwt",
+            "https://github.com/firebase/php-jwt/commit/6b80341bf57838ea2d011487917337901cd71576",
+            "https://github.com/firebase/php-jwt/issues/611",
+            "https://github.com/firebase/php-jwt/issues/618",
+            "https://github.com/firebase/php-jwt/issues/620",
+            "https://github.com/firebase/php-jwt/pull/613",
+            "https://github.com/firebase/php-jwt/releases/tag/v7.0.0",
+            "https://github.com/github/advisory-database/pull/6954",
+            "https://nvd.nist.gov/vuln/detail/CVE-2025-45769"
+          ],
+          "PublishedDate": "2025-07-31T20:15:33.15Z",
+          "LastModifiedDate": "2026-06-17T09:25:41.153Z"
+        }
+      ]
+    }
+  ]
+}

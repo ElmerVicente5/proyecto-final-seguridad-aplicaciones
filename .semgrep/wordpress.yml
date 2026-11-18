@@ -1,0 +1,120 @@
+# Reglas propias para código de plugins de WordPress; complementan p/php y p/owasp-top-ten.
+rules:
+  - id: wp-sqli-wpdb-sin-prepare
+    severity: ERROR
+    languages: [php]
+    message: >-
+      La consulta se envía a $wpdb sin pasar por $wpdb->prepare(); si incluye datos del
+      usuario permite inyección SQL.
+    metadata:
+      cwe: "CWE-89: SQL Injection"
+      owasp: "A03:2021 - Injection"
+      capa: "2. Aplicación (código)"
+    patterns:
+      - pattern-either:
+          - pattern: $DB->get_row($Q, ...)
+          - pattern: $DB->get_results($Q, ...)
+          - pattern: $DB->get_var($Q, ...)
+          - pattern: $DB->get_col($Q, ...)
+          - pattern: $DB->query($Q, ...)
+      - pattern-not: $DB->$M($DB->prepare(...), ...)
+      - pattern-not: $DB->$M("...", ...)
+
+  - id: wp-xss-salida-sin-escapar
+    severity: ERROR
+    languages: [php]
+    message: >-
+      Un dato que viene de la petición o de la base de datos llega al HTML sin esc_html(),
+      esc_attr() u otra función de escape; permite XSS.
+    metadata:
+      cwe: "CWE-79: Cross-site Scripting"
+      owasp: "A03:2021 - Injection"
+      capa: "2. Aplicación (código)"
+    mode: taint
+    pattern-sources:
+      - pattern: $_GET[...]
+      - pattern: $_POST[...]
+      - pattern: $_REQUEST[...]
+      - pattern: get_post_meta(...)
+    pattern-sanitizers:
+      - pattern-either:
+          - pattern: esc_html(...)
+          - pattern: esc_attr(...)
+          - pattern: esc_url(...)
+          - pattern: wp_kses(...)
+          - pattern: wp_kses_post(...)
+          - pattern: absint(...)
+          - pattern: intval(...)
+          - pattern: sanitize_text_field(...)
+          - pattern: sanitize_textarea_field(...)
+    pattern-sinks:
+      - pattern: echo $X;
+      - pattern: print($X);
+      # Solo se evalúa lo que se agrega, no la variable acumulada.
+      - patterns:
+          - pattern: $HTML .= $X;
+          - focus-metavariable: $X
+
+  - id: wp-csrf-post-sin-nonce
+    severity: ERROR
+    languages: [php]
+    message: >-
+      La función usa datos de $_POST para cambiar información sin verificar un nonce con
+      wp_verify_nonce() o check_admin_referer(); permite CSRF.
+    metadata:
+      cwe: "CWE-352: Cross-Site Request Forgery"
+      owasp: "A01:2021 - Broken Access Control"
+      capa: "2. Aplicación (lógica)"
+    patterns:
+      - pattern-inside: |
+          function $F(...) { ... }
+      - pattern: $FN(..., <... $_POST[...] ...>, ...)
+      - pattern-not: isset(...)
+      - pattern-not-inside: |
+          function $F(...) { ... wp_verify_nonce(...); ... }
+      - pattern-not-inside: |
+          function $F(...) { ... if (<... wp_verify_nonce(...) ...>) { ... } ... }
+      - pattern-not-inside: |
+          function $F(...) { ... check_admin_referer(...); ... }
+
+  - id: wp-secreto-en-codigo
+    severity: ERROR
+    languages: [php]
+    message: >-
+      Hay una clave o secreto escrito en el código; debe leerse de una variable de entorno o
+      de la configuración y tener longitud suficiente.
+    metadata:
+      cwe: "CWE-798: Use of Hard-coded Credentials"
+      owasp: "A07:2021 - Identification and Authentication Failures"
+      capa: "1. Datos (gestión de claves)"
+    patterns:
+      - pattern-either:
+          - pattern: const $NOMBRE = "$VALOR";
+          - pattern: define("$NOMBRE", "$VALOR");
+      - metavariable-regex:
+          metavariable: $NOMBRE
+          regex: (?i).*(clave|secret|key|password|pass|token).*
+
+  - id: wp-error-sql-expuesto
+    severity: WARNING
+    languages: [php]
+    message: >-
+      El error de la base de datos se devuelve al cliente; revela la estructura de las
+      consultas y facilita la inyección SQL.
+    metadata:
+      cwe: "CWE-209: Information Exposure Through an Error Message"
+      owasp: "A05:2021 - Security Misconfiguration"
+      capa: "2. Aplicación (código)"
+    pattern: new WP_Error($C, $DB->last_error, ...)
+
+  - id: wp-rest-ruta-publica
+    severity: INFO
+    languages: [php]
+    message: >-
+      La ruta REST no exige permisos (permission_callback = __return_true); confirma que deba
+      ser pública y que la autorización se valide en otro punto.
+    metadata:
+      cwe: "CWE-862: Missing Authorization"
+      owasp: "A01:2021 - Broken Access Control"
+      capa: "2. Aplicación (perímetro de API)"
+    pattern: "array(..., 'permission_callback' => '__return_true', ...)"

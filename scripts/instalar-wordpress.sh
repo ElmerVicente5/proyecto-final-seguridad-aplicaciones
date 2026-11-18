@@ -64,6 +64,18 @@ opcion woocommerce_allow_tracking "no"
 opcion woocommerce_cod_settings '{"enabled":"yes","title":"Pago contra entrega"}' --format=json
 wp wc tool run install_pages --user="${WP_ADMIN_USER}" >/dev/null 2>&1 || true
 
+log "Activando el plugin propio Consulta de Pedidos..."
+if wp plugin is-installed consulta-pedidos; then
+  wp plugin is-active consulta-pedidos || wp plugin activate consulta-pedidos
+  if [ "$(wp post list --post_type=page --name=consultar-pedido --format=count)" -eq 0 ]; then
+    wp post create --post_type=page --post_status=publish --post_title="Consultar pedido" \
+      --post_name=consultar-pedido --post_content='[consulta_pedidos]' --porcelain >/dev/null
+    echo "  Página creada: ${WP_URL}/consultar-pedido/"
+  fi
+else
+  echo "  No se encontró el plugin; revisa PLUGIN_VERSION en .env."
+fi
+
 crear_usuario() {
   local usuario=$1 email=$2 rol=$3 clave=$4 nombre=$5 apellido=$6
   if wp user get "$usuario" --field=ID >/dev/null 2>&1; then

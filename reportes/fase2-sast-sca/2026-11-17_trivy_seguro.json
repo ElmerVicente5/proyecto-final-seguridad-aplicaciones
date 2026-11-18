@@ -1,0 +1,39 @@
+{
+  "SchemaVersion": 2,
+  "Trivy": {
+    "Version": "0.76.2"
+  },
+  "ReportID": "01a1ecc5-59e6-70c3-bd39-49e3198a49da",
+  "CreatedAt": "2026-11-18T03:48:39.01405166Z",
+  "ArtifactName": "/src/plugin-consulta-pedidos/seguro",
+  "ArtifactType": "filesystem",
+  "Results": [
+    {
+      "Target": "composer.lock",
+      "Class": "lang-pkgs",
+      "Type": "composer",
+      "Packages": [
+        {
+          "ID": "firebase/php-jwt@v7.2.2",
+          "Name": "firebase/php-jwt",
+          "Identifier": {
+            "PURL": "pkg:composer/firebase/php-jwt@v7.2.2",
+            "UID": "ef9dae6cdd8d9926"
+          },
+          "Version": "v7.2.2",
+          "Licenses": [
+            "BSD-3-Clause"
+          ],
+          "Relationship": "direct",
+          "Locations": [
+            {
+              "StartLine": 9,
+              "EndLine": 83
+            }
+          ],
+          "AnalyzedBy": "composer"
+        }
+      ]
+    }
+  ]
+}
