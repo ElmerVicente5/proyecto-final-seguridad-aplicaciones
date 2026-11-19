@@ -1,0 +1,81 @@
+<mxGraphModel adaptiveColors="auto" dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1180" pageHeight="900" math="0" shadow="0">
+  <root>
+    <mxCell id="0"/>
+    <mxCell id="1" parent="0"/>
+    <mxCell id="titulo" value="Arquitectura rediseñada (Cloud-native segura)" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
+      <mxGeometry x="40" y="20" width="900" height="30" as="geometry"/>
+    </mxCell>
+    <mxCell id="leyenda" value="Verde: control de seguridad agregado   ·   lineas: trafico cifrado (TLS)" style="text;html=1;fontSize=12;align=left;fontColor=#1E7F3E;" vertex="1" parent="1">
+      <mxGeometry x="40" y="50" width="800" height="20" as="geometry"/>
+    </mxCell>
+    <mxCell id="cliente" value="Cliente web / movil&#10;&lt;br&gt;&lt;small&gt;navegador o app&lt;/small&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;labelPerimeter=1;" vertex="1" parent="1">
+      <mxGeometry x="80" y="430" width="50" height="90" as="geometry"/>
+    </mxCell>
+    <mxCell id="cdn" value="CDN&#10;&lt;br&gt;&lt;small&gt;CloudFront / Cloudflare&#10;TLS, cache, anti-DDoS&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="1">
+      <mxGeometry x="210" y="430" width="150" height="80" as="geometry"/>
+    </mxCell>
+    <mxCell id="vpc" value="VPC (red privada virtual en la nube)" style="swimlane;startSize=30;html=1;fontSize=14;fontStyle=1;fillColor=#F7F8FA;strokeColor=#B8C0CC;verticalAlign=top;" vertex="1" parent="1">
+      <mxGeometry x="410" y="90" width="740" height="780" as="geometry"/>
+    </mxCell>
+    <mxCell id="spub" value="Subred publica" style="swimlane;startSize=26;html=1;fontSize=13;fontStyle=1;fillColor=#FFFFFF;strokeColor=#9DB8F2;verticalAlign=top;" vertex="1" parent="vpc">
+      <mxGeometry x="30" y="50" width="680" height="190" as="geometry"/>
+    </mxCell>
+    <mxCell id="waf" value="WAF&#10;&lt;br&gt;&lt;small&gt;ModSecurity + OWASP CRS&#10;bloquea OWASP Top 10&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="spub">
+      <mxGeometry x="30" y="50" width="180" height="90" as="geometry"/>
+    </mxCell>
+    <mxCell id="apigw" value="API Gateway&#10;&lt;br&gt;&lt;small&gt;rate limiting, validacion&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="spub">
+      <mxGeometry x="250" y="50" width="180" height="90" as="geometry"/>
+    </mxCell>
+    <mxCell id="iam" value="Servicio de identidad&#10;&lt;br&gt;&lt;small&gt;Cognito / Auth0&#10;OAuth2, JWT, MFA&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="spub">
+      <mxGeometry x="470" y="50" width="180" height="90" as="geometry"/>
+    </mxCell>
+    <mxCell id="sapp" value="Subred privada - aplicacion" style="swimlane;startSize=26;html=1;fontSize=13;fontStyle=1;fillColor=#FFFFFF;strokeColor=#9DB8F2;verticalAlign=top;" vertex="1" parent="vpc">
+      <mxGeometry x="30" y="270" width="680" height="170" as="geometry"/>
+    </mxCell>
+    <mxCell id="wp" value="WordPress + WooCommerce&#10;&lt;br&gt;&lt;small&gt;contenedores (ECS / EKS) sin root&#10;cap_drop, read_only, limites&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="sapp">
+      <mxGeometry x="30" y="46" width="300" height="100" as="geometry"/>
+    </mxCell>
+    <mxCell id="plugin" value="Plugin seguro&#10;&lt;br&gt;&lt;small&gt;consultas preparadas, control&#10;de acceso, JWT con expiracion&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="sapp">
+      <mxGeometry x="370" y="46" width="280" height="100" as="geometry"/>
+    </mxCell>
+    <mxCell id="sdata" value="Subred privada - datos (sin salida a internet)" style="swimlane;startSize=26;html=1;fontSize=13;fontStyle=1;fillColor=#FFFFFF;strokeColor=#9DB8F2;verticalAlign=top;" vertex="1" parent="vpc">
+      <mxGeometry x="30" y="470" width="680" height="150" as="geometry"/>
+    </mxCell>
+    <mxCell id="rds" value="Base de datos administrada&#10;&lt;br&gt;&lt;small&gt;RDS MySQL · cifrado en reposo (KMS)&lt;/small&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="sdata">
+      <mxGeometry x="40" y="40" width="200" height="90" as="geometry"/>
+    </mxCell>
+    <mxCell id="backup" value="Respaldos cifrados&#10;&lt;br&gt;&lt;small&gt;snapshots automaticos&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="sdata">
+      <mxGeometry x="300" y="50" width="180" height="70" as="geometry"/>
+    </mxCell>
+    <mxCell id="servicios" value="Servicios transversales" style="swimlane;startSize=26;html=1;fontSize=13;fontStyle=1;fillColor=#FFF6E0;strokeColor=#E8C36A;verticalAlign=top;" vertex="1" parent="vpc">
+      <mxGeometry x="30" y="650" width="680" height="110" as="geometry"/>
+    </mxCell>
+    <mxCell id="secrets" value="Secrets Manager&#10;&lt;br&gt;&lt;small&gt;contrasenas y claves&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="servicios">
+      <mxGeometry x="20" y="40" width="200" height="56" as="geometry"/>
+    </mxCell>
+    <mxCell id="kms" value="KMS&#10;&lt;br&gt;&lt;small&gt;gestion de claves de cifrado&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="servicios">
+      <mxGeometry x="240" y="40" width="200" height="56" as="geometry"/>
+    </mxCell>
+    <mxCell id="siem" value="SIEM / monitoreo&#10;&lt;br&gt;&lt;small&gt;logs del WAF, RASP, alertas&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=12;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="servicios">
+      <mxGeometry x="460" y="40" width="200" height="56" as="geometry"/>
+    </mxCell>
+    <mxCell id="e1" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#1E7F3E;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="1" source="cliente" target="cdn">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e2" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#1E7F3E;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="1" source="cdn" target="waf">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8A94A6;labelBackgroundColor=default;defaultLabelBackgroundColor=page;" edge="1" parent="spub" source="waf" target="apigw">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e4" value="valida token" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;dashed=1;strokeColor=#8A94A6;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="spub" source="apigw" target="iam">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e5" value="TLS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#1E7F3E;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="vpc" source="spub" target="sapp">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+    <mxCell id="e6" value="TLS" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#1E7F3E;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="vpc" source="sapp" target="sdata">
+      <mxGeometry relative="1" as="geometry"/>
+    </mxCell>
+  </root>
+</mxGraphModel>
