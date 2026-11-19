@@ -1,0 +1,32 @@
+# Configuracion de ejemplo de Fluent Bit para enviar los eventos del WAF a un SIEM.
+# Es una propuesta de la fase 5; no se levanta en el laboratorio.
+# ModSecurity escribe su audit log en JSON a la salida estandar del contenedor waf,
+# asi que Fluent Bit lee los logs de Docker, filtra los eventos de seguridad y los reenvia.
+
+[SERVICE]
+    Flush        5
+    Log_Level    info
+    Parsers_File parsers.conf
+
+[INPUT]
+    Name         tail
+    Tag          waf.modsec
+    Path         /var/lib/docker/containers/*/*-json.log
+    Parser       docker
+    Refresh_Interval 5
+
+# Deja pasar solo las lineas del audit log de ModSecurity (contienen "transaction").
+[FILTER]
+    Name         grep
+    Match        waf.modsec
+    Regex        log transaction
+
+# Destino: un SIEM que reciba por HTTP (Elastic, Wazuh indexer, Splunk HEC, etc.).
+[OUTPUT]
+    Name         http
+    Match        waf.modsec
+    Host         siem.interno.local
+    Port         9200
+    URI          /waf-modsec/_doc
+    Format       json
+    tls          On

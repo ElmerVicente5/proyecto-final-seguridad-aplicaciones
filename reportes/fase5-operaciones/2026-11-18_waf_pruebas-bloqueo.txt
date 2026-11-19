@@ -1,0 +1,22 @@
+Pruebas del WAF (ModSecurity + OWASP CRS) delante de WordPress en localhost
+Fecha: 2026-11-18   El WAF publica 8080 y reenvia a wordpress:80 (ya no expuesto).
+
+1) Trafico legitimo (debe pasar con 200):
+   /                      HTTP 200
+   /shop/                 HTTP 200
+   /consultar-pedido/     HTTP 200
+
+2) Ataques bloqueados por el WAF (403):
+   SQLi (UNION SELECT)            HTTP 403
+   XSS (<script>)                 HTTP 403
+   Path traversal (/etc/passwd)   HTTP 403
+   xmlrpc.php (regla propia)      HTTP 403
+   author=1 (regla propia)        HTTP 403
+
+3) Cabeceras de seguridad y ocultamiento de versiones (mu-plugin + WAF):
+   Server: UMG-WAF
+   X-Frame-Options: SAMEORIGIN
+   X-Frame-Options: SAMEORIGIN
+   X-Content-Type-Options: nosniff
+   Referrer-Policy: strict-origin-when-cross-origin
+   Content-Security-Policy: default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'

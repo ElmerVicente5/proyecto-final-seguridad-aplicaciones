@@ -16,6 +16,7 @@ desarrollo seguro: evaluar, atacar, corregir y madurar una aplicación e-commerc
 | `wordpress` | `wordpress:7.1.4-php8.3-apache` | Sitio en <http://localhost:8080> (volumen `wp_html`) |
 | `wpcli` | `wordpress:cli-2.12.0-php8.3` | Administración con WP-CLI (perfil `herramientas`, se usa con `docker compose run`) |
 | `composer` | `composer:2.11.2` | Instala las dependencias PHP del plugin propio (perfil `herramientas`) |
+| `waf` | `owasp/modsecurity-crs:4.30.0-apache` | WAF (ModSecurity + CRS) como proxy inverso delante de WordPress (fase 5) |
 
 WooCommerce se instala con WP-CLI en la versión fijada en `.env` (`WOOCOMMERCE_VERSION`, por defecto 11.3.0).
 
@@ -118,6 +119,32 @@ repetir la colección antes de ese tiempo, borra los bloqueos con:
 ```bash
 docker compose run --rm wpcli wp transient delete --all
 ```
+
+## Operaciones: WAF y hardening (fase 5)
+
+Un **WAF** (ModSecurity + OWASP Core Rule Set, imagen `owasp/modsecurity-crs`) se coloca como proxy
+inverso: publica `127.0.0.1:8080` y reenvía a WordPress, que deja de exponerse. Todo el tráfico pasa
+por el WAF.
+
+```bash
+docker compose up -d        # levanta db, wordpress y waf
+curl -I http://localhost:8080/                         # 200, Server: UMG-WAF
+curl -o /dev/null -w "%{http_code}\n" "http://localhost:8080/?id=1%27%20UNION%20SELECT%201--"   # 403
+```
+
+- **WAF** ([waf/rules/999-umg-custom.conf](waf/rules/999-umg-custom.conf)): el CRS bloquea SQLi, XSS y
+  path traversal; reglas propias bloquean `xmlrpc.php` y la enumeración por `?author=N`, y ocultan las
+  cabeceras `Server` y `X-Powered-By`.
+- **mu-plugin** ([mu-plugins/umg-hardening.php](mu-plugins/umg-hardening.php)): añade cabeceras de
+  seguridad (CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy`), oculta la versión de WordPress y
+  cierra la enumeración de usuarios por la API REST.
+- **RASP y SIEM**: propuesta conceptual con configuración de ejemplo en
+  [docs/operaciones/rasp-siem.md](docs/operaciones/rasp-siem.md) y
+  [waf/siem/fluent-bit.conf.ejemplo](waf/siem/fluent-bit.conf.ejemplo). El audit log de ModSecurity
+  (en JSON, por la salida estándar del contenedor `waf`) es la fuente de eventos.
+
+Con el WAF y el mu-plugin, la colección de caja gris de la fase 3 pasa de 10 aserciones fallidas a 1.
+Las dos versiones del compose se conservan en `docs/antes-despues/` (`fase5_...`).
 
 ## Auditoría de contenedores e IaC (fase 4)
 

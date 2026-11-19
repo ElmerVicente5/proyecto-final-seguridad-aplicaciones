@@ -66,11 +66,13 @@ services:
     secrets:
       - mysql_password
       - consulta_pedidos_jwt_secret
-    ports:
-      - "127.0.0.1:8080:80"
+    # WordPress ya no se publica en el anfitrion; el trafico entra siempre por el WAF.
+    expose:
+      - "80"
     volumes:
       - wp_html:/var/www/html
       - ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro
+      - ./mu-plugins:/var/www/html/wp-content/mu-plugins:ro
     networks:
       - frontend
       - backend
@@ -153,6 +155,45 @@ services:
     cap_drop:
       - ALL
 
+  waf:
+    image: owasp/modsecurity-crs:4.30.0-apache-202611160811
+    container_name: umg-waf
+    restart: unless-stopped
+    depends_on:
+      wordpress:
+        condition: service_healthy
+    environment:
+      # Proxy inverso que reenvia al contenedor de WordPress.
+      BACKEND: http://wordpress:80
+      SERVERNAME: localhost
+      PORT: 8080
+      # On bloquea; DetectionOnly solo registra. Nivel de paranoia 1 para no romper el panel.
+      MODSEC_RULE_ENGINE: "On"
+      PARANOIA: "1"
+      ANOMALY_INBOUND: "10"
+      ANOMALY_OUTBOUND: "5"
+      # Deja pasar cuerpos grandes de subida de medios en el panel.
+      MODSEC_REQ_BODY_LIMIT: "13107200"
+    volumes:
+      - ./waf/rules/999-umg-custom.conf:/etc/modsecurity.d/owasp-crs/rules/999-umg-custom.conf:ro
+      - waf_logs:/var/log/apache2
+    ports:
+      - "127.0.0.1:8080:8080"
+    networks:
+      - frontend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - NET_BIND_SERVICE
+    mem_limit: 512m
+    cpus: 1.0
+    pids_limit: 200
+
 secrets:
   mysql_root_password:
     file: ./secrets/mysql_root_password.txt
@@ -177,3 +218,4 @@ networks:
 volumes:
   db_data:
   wp_html:
+  waf_logs:

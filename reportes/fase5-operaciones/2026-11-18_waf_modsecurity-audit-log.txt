@@ -1,0 +1,10 @@
+Registro de auditoria de ModSecurity (fuente de eventos para el SIEM)
+El WAF envia su audit log a la salida estandar; se recoge con: docker compose logs waf
+
+Eventos de ataque bloqueados (formato legible del error log):
+  ModSecurity: Access denied with code 403 (phase 1). Pattern match "^[0-9]+$" at ARGS_GET:author
+  ModSecurity: Access denied with code 403 (phase 1). String match "/xmlrpc.php" at REQUEST_URI
+
+Mismo evento en formato JSON (el que consumiria el SIEM), recortado:
+  {"transaction":{"time":"19/Nov/2026:02:29:43.992494 +0000","transaction_id":"av5fF5ltuQpQahV6dZzjdAAAAEE","remote_address":"172.20.0.1","remote_port":55224,"local_address":"172.20.0.3","local_port":8080},"request":{"request_line":"GET /wp-json/wp/v2/users HTTP/1.1","headers":{"User-Agent":"PostmanRu
+  ...
