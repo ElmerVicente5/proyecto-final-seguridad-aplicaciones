@@ -134,8 +134,23 @@ Hay un punto de entrada único por fase:
 ```
 
 Cada escaneo guarda su salida en `reportes/<fase>/`, y los reportes HTML (Trivy, KICS, ZAP) en
-`reportes/<fase>/html/` para abrirlos en el navegador. Las fases 3 y 5 dependen del estado del
-entorno: la fase 3 se reproduce sobre la línea base vulnerable y la fase 5 sobre el entorno con WAF.
+`reportes/<fase>/html/` para abrirlos en el navegador.
+
+### Estados del entorno (antes / después)
+
+El proyecto endurece la aplicación en tres estados. Para reproducir una fase o mostrar el
+antes/después hay que levantar el entorno en el estado correspondiente:
+
+```bash
+./scripts/levantar-estado.sh linea-base   # vulnerable, sin WAF        -> fases 1, 2 y 3
+./scripts/levantar-estado.sh endurecido   # Docker secrets, hardening  -> fase 4
+./scripts/levantar-estado.sh waf          # endurecido + WAF (final)    -> fase 5
+```
+
+Las mismas pruebas dan resultados distintos según el estado, y eso **es** el antes/después. Por
+ejemplo, el mismo ataque de SQLi responde `200` en la línea base (llega a WordPress) y `403` con el
+WAF. `docker compose up` por sí solo levanta el estado final (con WAF). El plugin (`vulnerable` o
+`seguro`) se elige aparte con `PLUGIN_VERSION` en `.env`.
 
 ## Operaciones: WAF y hardening (fase 5)
 

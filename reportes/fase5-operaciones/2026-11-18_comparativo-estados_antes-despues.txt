@@ -1,0 +1,14 @@
+Comparativo antes/despues entre estados del entorno
+Las mismas pruebas sobre http://localhost:8080 en dos estados levantados con scripts/levantar-estado.sh
+
+Prueba                                   Linea base (antes)         Endurecido+WAF (despues)  
+--------------------------------------------------------------------------------------------
+Cabecera Server (version del servidor)   Apache/2.4.69 (Debian)     UMG-WAF                   
+SQLi en la URL (codigo HTTP)             200                        403                       
+xmlrpc.php (codigo HTTP)                 200                        403                       
+Enumeracion de usuarios /wp/v2/users     200                        401                       
+Puerto MySQL 3306 en el anfitrion        EXPUESTO                   cerrado                   
+
+Lectura: en la linea base el servidor revela su version, los ataques llegan a WordPress (HTTP 200),
+xmlrpc y la enumeracion estan abiertos y MySQL esta expuesto. En el estado final el WAF oculta la
+version, bloquea los ataques (403/401) y MySQL ya no es accesible desde el anfitrion.
