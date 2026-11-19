@@ -12,6 +12,9 @@ if [ ! -f .env ]; then
   exit 1
 fi
 
+echo "Generando secretos de Docker desde .env..."
+./scripts/generar-secretos.sh
+
 echo "Instalando dependencias PHP del plugin..."
 for version in vulnerable seguro; do
   docker compose run --rm composer install -d "$version" --no-dev --no-interaction --no-progress

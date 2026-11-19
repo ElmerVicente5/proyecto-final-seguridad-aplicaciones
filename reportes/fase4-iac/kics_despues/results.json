@@ -1,0 +1,226 @@
+{
+	"kics_version": "v2.2.1",
+	"files_scanned": 1,
+	"lines_scanned": 180,
+	"files_parsed": 1,
+	"lines_parsed": 174,
+	"lines_ignored": 6,
+	"files_failed_to_scan": 0,
+	"queries_total": 21,
+	"queries_failed_to_execute": 0,
+	"queries_failed_to_compute_similarity_id": 0,
+	"scan_id": "console",
+	"severity_counters": {
+		"CRITICAL": 0,
+		"HIGH": 0,
+		"INFO": 7,
+		"LOW": 0,
+		"MEDIUM": 5,
+		"TRACE": 0
+	},
+	"total_counter": 12,
+	"total_bom_resources": 0,
+	"start": "2026-11-19T02:14:07.933091611Z",
+	"end": "2026-11-19T02:14:09.589732562Z",
+	"paths": [
+		"/src/docker-compose.yml"
+	],
+	"queries": [
+		{
+			"query_name": "Container Capabilities Unrestricted",
+			"query_id": "ce76b7d0-9e77-464d-b86f-c5c48e03e22d",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#cap_add-cap_drop",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "400",
+			"risk_score": "6.8",
+			"cloud_provider": "COMMON",
+			"category": "Resource Management",
+			"experimental": false,
+			"description": "Some capabilities are not needed in certain (or any) containers. Make sure that you only add capabilities that your container needs. Drop unnecessary capabilities as well.",
+			"description_id": "1ddab108",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "e56900eddf576d2e0e5a41bf7770eba709aa2e9b59e3661449619df21a3b5c2f",
+					"line": 36,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.db.cap_add",
+					"search_line": 36,
+					"search_value": "",
+					"expected_value": "Make sure you only add the necessary capabilities to your container.",
+					"actual_value": "Docker compose file has 'cap_add' attribute."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "36d2783accf7dc26f65d4aca5d0af7327ebce3e2c2b8f1d7d22834ede15a7f9c",
+					"line": 87,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.cap_add",
+					"search_line": 87,
+					"search_value": "",
+					"expected_value": "Make sure you only add the necessary capabilities to your container.",
+					"actual_value": "Docker compose file has 'cap_add' attribute."
+				}
+			]
+		},
+		{
+			"query_name": "Healthcheck Not Set",
+			"query_id": "698ed579-b239-4f8f-a388-baa4bcb13ef8",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#healthcheck",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "703",
+			"risk_score": "5.1",
+			"cloud_provider": "COMMON",
+			"category": "Availability",
+			"experimental": false,
+			"description": "Check containers periodically to see if they are running properly.",
+			"description_id": "449b7c5c",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "05b5b26893d966f35165ea1bff4eafaf69565655eaee414c2388a9c867c00271",
+					"line": 104,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wpcli",
+					"search_line": 104,
+					"search_value": "",
+					"expected_value": "Healthcheck should be defined.",
+					"actual_value": "Healthcheck is not defined."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "03e79713a41814c40699b7578be7d0900ab755923d17905ddbfef9c9c8c77588",
+					"line": 143,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.composer",
+					"search_line": 143,
+					"search_value": "",
+					"expected_value": "Healthcheck should be defined.",
+					"actual_value": "Healthcheck is not defined."
+				}
+			]
+		},
+		{
+			"query_name": "Privileged Ports Mapped In Container",
+			"query_id": "bc2908f3-f73c-40a9-8793-c1b7d5544f79",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#cap_add-cap_drop",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "269",
+			"risk_score": "5.2",
+			"cloud_provider": "COMMON",
+			"category": "Networking and Firewall",
+			"experimental": false,
+			"description": "Privileged ports (1 to 1023) should not be mapped. Also you should drop net_bind_service linux capability from the container unless you absolutely need to use priviledged ports.",
+			"description_id": "686dd55f",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "c274b86a43584909afba45c579a711a0e5ed4e31e8557ed0703efe65ee847b11",
+					"line": 69,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.ports",
+					"search_line": 69,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'ports' attribute not set to privileged ports (\u003c1024).",
+					"actual_value": "Docker compose file has 'ports' attribute set to privileged ports (\u003c1024)."
+				}
+			]
+		},
+		{
+			"query_name": "Shared Volumes Between Containers",
+			"query_id": "8c978947-0ff6-485c-b0c2-0bfca6026466",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#volumes",
+			"severity": "INFO",
+			"platform": "DockerCompose",
+			"cwe": "693",
+			"risk_score": "0.0",
+			"cloud_provider": "COMMON",
+			"category": "Insecure Configurations",
+			"experimental": false,
+			"description": "Volumes shared between containers can cause data corruption or can be used to share malicious files between containers.",
+			"description_id": "574aa3ab",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "fbface34b7e1270abe6378e3605551d924f0c5fffd319e7029f42352b8a5863d",
+					"line": 73,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.volumes",
+					"search_line": 73,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "e23d2ba395a7b574fedf60cb1ae0fe24bd7630f1fedd8f269c039d9654ab7c70",
+					"line": 131,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wpcli.volumes",
+					"search_line": 131,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "351ac429e305dc0b2f8988792ab0adac1c4101333fc630c4762573353a7b73bf",
+					"line": 130,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wpcli.volumes",
+					"search_line": 130,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume wp_html:/var/www/html shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "e208086bda36237ba3ac712653895cabf702dfe8dc5fe9f9f2160a99a400c360",
+					"line": 22,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.db.volumes",
+					"search_line": 22,
+					"search_value": "created-and-shared",
+					"expected_value": "There shouldn't be volumes created and shared between containers",
+					"actual_value": "Volume db_data created and shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "1f91ea29dcc871add080363d5f21194035e2cb18f7685b700a836dc6243f4c2f",
+					"line": 72,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.volumes",
+					"search_line": 72,
+					"search_value": "created-and-shared",
+					"expected_value": "There shouldn't be volumes created and shared between containers",
+					"actual_value": "Volume wp_html created and shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "351ac429e305dc0b2f8988792ab0adac1c4101333fc630c4762573353a7b73bf",
+					"line": 130,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wpcli.volumes",
+					"search_line": 130,
+					"search_value": "created-and-shared",
+					"expected_value": "There shouldn't be volumes created and shared between containers",
+					"actual_value": "Volume wp_html created and shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "1f91ea29dcc871add080363d5f21194035e2cb18f7685b700a836dc6243f4c2f",
+					"line": 72,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.volumes",
+					"search_line": 72,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume wp_html:/var/www/html shared between containers"
+				}
+			]
+		}
+	]
+}

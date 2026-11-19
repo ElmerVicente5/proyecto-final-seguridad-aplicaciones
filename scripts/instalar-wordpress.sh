@@ -4,6 +4,24 @@ set -euo pipefail
 
 export WP_CLI_CACHE_DIR=/tmp/wp-cli-cache
 
+# Las contraseñas llegan como Docker secrets (archivos); se leen aquí a variables.
+leer_secreto() {
+  # $1 variable destino, $2 archivo de secreto, $3 variable de entorno de respaldo
+  local archivo="/run/secrets/$2"
+  if [ -f "$archivo" ]; then
+    eval "$1=\$(cat '$archivo')"
+  else
+    eval "$1=\${$3:-}"
+  fi
+}
+leer_secreto WP_ADMIN_PASSWORD wp_admin_password WP_ADMIN_PASSWORD
+leer_secreto GESTOR_PASSWORD gestor_password GESTOR_PASSWORD
+leer_secreto EDITOR_PASSWORD editor_password EDITOR_PASSWORD
+leer_secreto CLIENTE_PASSWORD cliente_password CLIENTE_PASSWORD
+# La comprobación de BD de abajo usa esta variable; la contraseña llega por el secreto mysql_password.
+leer_secreto WORDPRESS_DB_PASSWORD mysql_password WORDPRESS_DB_PASSWORD
+export WORDPRESS_DB_PASSWORD
+
 : "${WP_URL:?}" "${WP_TITULO:?}" "${WP_ADMIN_USER:?}" "${WP_ADMIN_PASSWORD:?}" "${WP_ADMIN_EMAIL:?}"
 : "${WOOCOMMERCE_VERSION:?}" "${GESTOR_PASSWORD:?}" "${EDITOR_PASSWORD:?}" "${CLIENTE_PASSWORD:?}"
 CREAR_DATOS_EJEMPLO="${CREAR_DATOS_EJEMPLO:-1}"

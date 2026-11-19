@@ -1,0 +1,50 @@
+2:14AM WRN KICS crash report disabled
+2:14AM INF Scanning with Keeping Infrastructure as Code Secure v2.2.1
+2:14AM INF Operating system: linux
+2:14AM INF Total memory: 15.5G
+2:14AM INF CPU: 16.0
+2:14AM INF Max file size permitted for scanning: 5 MB
+2:14AM INF Max resolver depth permitted for resolving files: 15
+2:14AM INF Total files in the project: 1
+2:14AM INF Loading queries of type: dockercompose
+2:14AM INF Inspector initialized, number of queries=21
+2:14AM INF Query execution timeout=1m0s
+2:14AM INF --- Parsing Summary ---
+2:14AM INF Scanned Files: 1
+2:14AM INF Parsed Files: 1
+2:14AM INF Scanned Lines: 180
+2:14AM INF Parsed Lines: 174
+2:14AM INF Ignored Lines: 6
+2:14AM INF Queries loaded: 21
+2:14AM INF Queries failed to execute: 0
+
+2:14AM INF --- Results Summary ---
+2:14AM INF CRITICAL: 0
+2:14AM INF HIGH: 0
+2:14AM INF MEDIUM: 5
+2:14AM INF LOW: 0
+2:14AM INF INFO: 7
+2:14AM INF TOTAL: 12
+
+2:14AM INF --- Queries Summary ---
+Platform         Query Name                              Severity    CWE    Results
+                                                                             
+DockerCompose    Container Capabilities Unrestricted     MEDIUM      400    2
+DockerCompose    Healthcheck Not Set                     MEDIUM      703    2
+DockerCompose    Privileged Ports Mapped In Container    MEDIUM      269    1
+DockerCompose    Shared Volumes Between Containers       INFO        693    7
+
+2:14AM INF Inspector stopped
+2:14AM INF Results saved to file /src/reportes/fase4-iac/kics_despues/results.json fileName=results.json
+2:14AM INF Scan duration: 1669ms
+
+
+Resumen KICS sobre docker-compose.yml
+Total de hallazgos: 12
+Por severidad: MEDIUM: 5, INFO: 7
+
+Severidad  Hallazgo                                         Servicios/lineas afectados
+MEDIUM     Container Capabilities Unrestricted              36, 87
+MEDIUM     Healthcheck Not Set                              104, 143
+MEDIUM     Privileged Ports Mapped In Container             69
+INFO       Shared Volumes Between Containers                73, 131, 130, 22, 72, 130, 72

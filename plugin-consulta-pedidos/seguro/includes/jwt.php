@@ -8,7 +8,9 @@ const CP_JWT_AUDIENCIA = 'consulta-pedidos';
 const CP_JWT_DURACION  = 900;
 
 function cp_clave_jwt() {
-	$clave = (string) getenv( 'CONSULTA_PEDIDOS_JWT_SECRET' );
+	// La clave se lee de un Docker secret si está montado, o de la variable de entorno.
+	$archivo = (string) getenv( 'CONSULTA_PEDIDOS_JWT_SECRET_FILE' );
+	$clave   = $archivo && is_readable( $archivo ) ? trim( (string) file_get_contents( $archivo ) ) : (string) getenv( 'CONSULTA_PEDIDOS_JWT_SECRET' );
 	// Una clave corta se puede adivinar por fuerza bruta a partir de un token capturado.
 	return strlen( $clave ) >= 32 ? $clave : null;
 }

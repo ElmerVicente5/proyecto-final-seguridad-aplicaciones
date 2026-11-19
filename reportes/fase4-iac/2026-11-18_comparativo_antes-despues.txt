@@ -1,0 +1,35 @@
+Comparativo de la auditoria de IaC (fase 4) - antes y despues del hardening
+Fecha: 2026-11-18   Objetivo: docker-compose.yml e imagenes, todo en localhost
+
+KICS sobre docker-compose.yml
+  Severidad   Antes  Despues
+  HIGH            7        0
+  MEDIUM         12        5
+  LOW             0        0
+  INFO            7        7
+  TOTAL          26       12
+
+Trivy sobre las imagenes (HIGH y CRITICAL)
+  mysql:8.4.13       antes: Total: 8 (HIGH: 8, CRITICAL: 0) despues: Total: 8 (HIGH: 8, CRITICAL: 0)
+  wordpress:7.1.4    antes: Total: 164 (HIGH: 158, CRITICAL: 6) despues: Total: 164 (HIGH: 158, CRITICAL: 6)
+  wordpress:cli      antes: 0 (limpio)                     despues: 0 (limpio)
+
+Controles aplicados en el hardening:
+  - Contrasenas movidas a Docker secrets (_FILE) en vez de variables de entorno
+  - cap_drop: ALL y solo las capacidades minimas necesarias
+  - security_opt: no-new-privileges en todos los servicios
+  - read_only: true con tmpfs en db y wordpress
+  - Limites de memoria (1g), CPU (1.5) y PIDs
+  - Healthcheck agregado a wordpress
+  - Imagenes fijadas por digest sha256
+  - MySQL ya no se publica en el anfitrion (puerto 3306 cerrado)
+  - Red backend interna (sin salida a internet) separada de frontend
+  - WORDPRESS_DEBUG apagado
+
+Residuales (aceptados y justificados):
+  - KICS marca cap_add en db y wordpress como capacidades anadidas: son las minimas que
+    Apache y MySQL necesitan para arrancar con cap_drop ALL.
+  - Sin healthcheck en wpcli y composer: son contenedores efimeros de un solo uso.
+  - Puerto 80 dentro del contenedor wordpress: lo usa Apache; se publica en 127.0.0.1:8080.
+  - CVEs HIGH/CRITICAL de las imagenes oficiales: provienen del sistema base (Debian) y
+    dependen del mantenedor de la imagen; el hardening del compose no los modifica.

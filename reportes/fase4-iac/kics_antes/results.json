@@ -1,0 +1,412 @@
+{
+	"kics_version": "v2.2.1",
+	"files_scanned": 1,
+	"lines_scanned": 101,
+	"files_parsed": 1,
+	"lines_parsed": 89,
+	"lines_ignored": 12,
+	"files_failed_to_scan": 0,
+	"queries_total": 21,
+	"queries_failed_to_execute": 0,
+	"queries_failed_to_compute_similarity_id": 0,
+	"scan_id": "console",
+	"severity_counters": {
+		"CRITICAL": 0,
+		"HIGH": 7,
+		"INFO": 7,
+		"LOW": 0,
+		"MEDIUM": 12,
+		"TRACE": 0
+	},
+	"total_counter": 26,
+	"total_bom_resources": 0,
+	"start": "2026-11-19T02:04:31.786552577Z",
+	"end": "2026-11-19T02:04:32.41087343Z",
+	"paths": [
+		"/src/docker-compose.yml"
+	],
+	"queries": [
+		{
+			"query_name": "Passwords And Secrets - Generic Password",
+			"query_id": "487f4be7-3fd9-4506-a07a-eae252180c08",
+			"query_url": "https://docs.kics.io/latest/secrets/",
+			"severity": "HIGH",
+			"platform": "Common",
+			"cwe": "798",
+			"risk_score": "7.8",
+			"cloud_provider": "COMMON",
+			"category": "Secret Management",
+			"experimental": false,
+			"description": "Query to find passwords and secrets in infrastructure code.",
+			"description_id": "d69d8a89",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "29455fd11b3545cbe48d37d7c65dc31bbe6bd613c269be2f2048ff667f9dbca6",
+					"line": 77,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "5b562428a8bc17d7e9fed0b4b63009c49c1ce686e03e68f9478b2be306d799ce",
+					"line": 81,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "c4e5f41c41344b21399855882ef8281c98fb0b9677cdbeda48d806f33eae1c2f",
+					"line": 82,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "b3da40f45e6471db0014abb46a71751f8e7c20f220309c0e6a196c4202242766",
+					"line": 44,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "d6a018d85a93d338ed89c82b791f30c1913eff5e743f67cfa52176f5135aea2b",
+					"line": 14,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "89a815eb0e5c439ac6d627ec58b8c7e915d214c25eef4052a102e4e3fb5e25b7",
+					"line": 80,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "77a45b2ea2265dde06f6fba2d3351a7cf0a471186ff8614b1e6e66b57811a3a9",
+					"line": 17,
+					"issue_type": "RedundantAttribute",
+					"search_key": "",
+					"search_line": 0,
+					"search_value": "",
+					"expected_value": "Hardcoded secret key should not appear in source",
+					"actual_value": "Hardcoded secret key appears in source"
+				}
+			]
+		},
+		{
+			"query_name": "Container Capabilities Unrestricted",
+			"query_id": "ce76b7d0-9e77-464d-b86f-c5c48e03e22d",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#cap_add-cap_drop",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "400",
+			"risk_score": "6.8",
+			"cloud_provider": "COMMON",
+			"category": "Resource Management",
+			"experimental": false,
+			"description": "Some capabilities are not needed in certain (or any) containers. Make sure that you only add capabilities that your container needs. Drop unnecessary capabilities as well.",
+			"description_id": "1ddab108",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "62744999ffe7bb297e34c8e93a1e4a2ee1bf09dc8353ca6b5e7c903ad4744b9a",
+					"line": 59,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wpcli",
+					"search_line": 59,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'cap_drop' attribute",
+					"actual_value": "Docker compose file doesn't have 'cap_drop' attribute. Make sure your container only has necessary capabilities."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "f79f9a2b5f5d35a6e98fd66362b974398d814487d11ea18b80745f36cda8e7f6",
+					"line": 7,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.db",
+					"search_line": 7,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'cap_drop' attribute",
+					"actual_value": "Docker compose file doesn't have 'cap_drop' attribute. Make sure your container only has necessary capabilities."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "141d73497cb1d5be2de01e4989d4f403b373f756a7fdfece491bbb3c123b5f30",
+					"line": 90,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.composer",
+					"search_line": 90,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'cap_drop' attribute",
+					"actual_value": "Docker compose file doesn't have 'cap_drop' attribute. Make sure your container only has necessary capabilities."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "ce1d7c604945c9f1dc787638f709c9257783c021cbaf7615ef23955f392b8393",
+					"line": 31,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wordpress",
+					"search_line": 31,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'cap_drop' attribute",
+					"actual_value": "Docker compose file doesn't have 'cap_drop' attribute. Make sure your container only has necessary capabilities."
+				}
+			]
+		},
+		{
+			"query_name": "Healthcheck Not Set",
+			"query_id": "698ed579-b239-4f8f-a388-baa4bcb13ef8",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#healthcheck",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "703",
+			"risk_score": "5.1",
+			"cloud_provider": "COMMON",
+			"category": "Availability",
+			"experimental": false,
+			"description": "Check containers periodically to see if they are running properly.",
+			"description_id": "449b7c5c",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "7fb11753c2d3e2190ba979fac9a01a05f2f5a4f84fb97d8b3b6dc0ba49d857f0",
+					"line": 90,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.composer",
+					"search_line": 90,
+					"search_value": "",
+					"expected_value": "Healthcheck should be defined.",
+					"actual_value": "Healthcheck is not defined."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "78ddbf4d62542a29d71c1c7290430128224e7e040bf52dd9c132e0dbe02ff1ec",
+					"line": 31,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wordpress",
+					"search_line": 31,
+					"search_value": "",
+					"expected_value": "Healthcheck should be defined.",
+					"actual_value": "Healthcheck is not defined."
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "8bc5d43d97170c2eac61adf15385de284f2395b9e126644ac90b48a12ffbb2e5",
+					"line": 59,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wpcli",
+					"search_line": 59,
+					"search_value": "",
+					"expected_value": "Healthcheck should be defined.",
+					"actual_value": "Healthcheck is not defined."
+				}
+			]
+		},
+		{
+			"query_name": "Privileged Ports Mapped In Container",
+			"query_id": "bc2908f3-f73c-40a9-8793-c1b7d5544f79",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#cap_add-cap_drop",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "269",
+			"risk_score": "5.2",
+			"cloud_provider": "COMMON",
+			"category": "Networking and Firewall",
+			"experimental": false,
+			"description": "Privileged ports (1 to 1023) should not be mapped. Also you should drop net_bind_service linux capability from the container unless you absolutely need to use priviledged ports.",
+			"description_id": "686dd55f",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "c109211b7404cf93448e5b05aa4f21b119d659841aaf176f815d3e4135052999",
+					"line": 51,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.ports",
+					"search_line": 51,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'ports' attribute not set to privileged ports (\u003c1024).",
+					"actual_value": "Docker compose file has 'ports' attribute set to privileged ports (\u003c1024)."
+				}
+			]
+		},
+		{
+			"query_name": "Security Opt Not Set",
+			"query_id": "610e266e-6c12-4bca-9925-1ed0cd29742b",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#security_opt",
+			"severity": "MEDIUM",
+			"platform": "DockerCompose",
+			"cwe": "693",
+			"risk_score": "5.5",
+			"cloud_provider": "COMMON",
+			"category": "Resource Management",
+			"experimental": false,
+			"description": "Attribute 'security_opt' should be defined.",
+			"description_id": "83fb7a65",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "81298b25bcb776e825ac7be87206bcd79b85e22ea9ea95fe7452bafaafa36984",
+					"line": 7,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.db",
+					"search_line": 7,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'security_opt' attribute",
+					"actual_value": "Docker compose file does not have 'security_opt' attribute"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "eac6beaf51440b86a76eff738051ad50ec14f9c16874cad4dc19d823b36e6dc3",
+					"line": 31,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wordpress",
+					"search_line": 31,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'security_opt' attribute",
+					"actual_value": "Docker compose file does not have 'security_opt' attribute"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "7dc4f341355c9504a419407382383bf830b230f0055c5552a6abc98ffa80fb91",
+					"line": 59,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.wpcli",
+					"search_line": 59,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'security_opt' attribute",
+					"actual_value": "Docker compose file does not have 'security_opt' attribute"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "67acf78ac19f2ce0ef182119f432986912410ae2e8abac2167c7c7cd975962e5",
+					"line": 90,
+					"issue_type": "MissingAttribute",
+					"search_key": "services.composer",
+					"search_line": 90,
+					"search_value": "",
+					"expected_value": "Docker compose file to have 'security_opt' attribute",
+					"actual_value": "Docker compose file does not have 'security_opt' attribute"
+				}
+			]
+		},
+		{
+			"query_name": "Shared Volumes Between Containers",
+			"query_id": "8c978947-0ff6-485c-b0c2-0bfca6026466",
+			"query_url": "https://docs.docker.com/compose/compose-file/compose-file-v3/#volumes",
+			"severity": "INFO",
+			"platform": "DockerCompose",
+			"cwe": "693",
+			"risk_score": "0.0",
+			"cloud_provider": "COMMON",
+			"category": "Insecure Configurations",
+			"experimental": false,
+			"description": "Volumes shared between containers can cause data corruption or can be used to share malicious files between containers.",
+			"description_id": "574aa3ab",
+			"files": [
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "5fb806935f8322d9be7b67304999ef101300c263203dae6076e6916d3ae22588",
+					"line": 56,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.volumes",
+					"search_line": 56,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "22501e49111a62b630f7182943b82859b0c103e76588c8b6633e9ed0fc7b887f",
+					"line": 86,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wpcli.volumes",
+					"search_line": 86,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "54d81c60f04b9662bc2deec113bc2c88a536a1b2ee1a8289668349e549d99a54",
+					"line": 54,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.volumes",
+					"search_line": 54,
+					"search_value": "created-and-shared",
+					"expected_value": "There shouldn't be volumes created and shared between containers",
+					"actual_value": "Volume wp_html created and shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "330d3ab21905d0b6d3ba6b05eec8e7e57dfcf5b67b0f835295338686a41ea064",
+					"line": 85,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wpcli.volumes",
+					"search_line": 85,
+					"search_value": "created-and-shared",
+					"expected_value": "There shouldn't be volumes created and shared between containers",
+					"actual_value": "Volume wp_html created and shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "c4bba01cecea24100f21baec5b092957980a7a2e317678ea4986822c4c5ee32a",
+					"line": 19,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.db.volumes",
+					"search_line": 19,
+					"search_value": "created-and-shared",
+					"expected_value": "There shouldn't be volumes created and shared between containers",
+					"actual_value": "Volume db_data created and shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "330d3ab21905d0b6d3ba6b05eec8e7e57dfcf5b67b0f835295338686a41ea064",
+					"line": 85,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wpcli.volumes",
+					"search_line": 85,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume wp_html:/var/www/html shared between containers"
+				},
+				{
+					"file_name": "../../src/docker-compose.yml",
+					"similarity_id": "54d81c60f04b9662bc2deec113bc2c88a536a1b2ee1a8289668349e549d99a54",
+					"line": 54,
+					"issue_type": "IncorrectValue",
+					"search_key": "services.wordpress.volumes",
+					"search_line": 54,
+					"search_value": "shared",
+					"expected_value": "There shouldn't be volumes shared between containers",
+					"actual_value": "Volume wp_html:/var/www/html shared between containers"
+				}
+			]
+		}
+	]
+}

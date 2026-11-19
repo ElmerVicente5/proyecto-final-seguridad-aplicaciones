@@ -1,0 +1,54 @@
+2:04AM WRN KICS crash report disabled
+2:04AM INF Scanning with Keeping Infrastructure as Code Secure v2.2.1
+2:04AM INF Operating system: linux
+2:04AM INF Total memory: 15.5G
+2:04AM INF CPU: 16.0
+2:04AM INF Max file size permitted for scanning: 5 MB
+2:04AM INF Max resolver depth permitted for resolving files: 15
+2:04AM INF Total files in the project: 1
+2:04AM INF Loading queries of type: dockercompose
+2:04AM INF Inspector initialized, number of queries=21
+2:04AM INF Query execution timeout=1m0s
+2:04AM INF --- Parsing Summary ---
+2:04AM INF Scanned Files: 1
+2:04AM INF Parsed Files: 1
+2:04AM INF Scanned Lines: 101
+2:04AM INF Parsed Lines: 89
+2:04AM INF Ignored Lines: 12
+2:04AM INF Queries loaded: 21
+2:04AM INF Queries failed to execute: 0
+
+2:04AM INF --- Results Summary ---
+2:04AM INF CRITICAL: 0
+2:04AM INF HIGH: 7
+2:04AM INF MEDIUM: 12
+2:04AM INF LOW: 0
+2:04AM INF INFO: 7
+2:04AM INF TOTAL: 26
+
+2:04AM INF --- Queries Summary ---
+Platform         Query Name                                  Severity    CWE    Results
+                                                                                 
+Common           Passwords And Secrets - Generic Password    HIGH        798    7
+DockerCompose    Container Capabilities Unrestricted         MEDIUM      400    4
+DockerCompose    Healthcheck Not Set                         MEDIUM      703    3
+DockerCompose    Privileged Ports Mapped In Container        MEDIUM      269    1
+DockerCompose    Security Opt Not Set                        MEDIUM      693    4
+DockerCompose    Shared Volumes Between Containers           INFO        693    7
+
+2:04AM INF Inspector stopped
+2:04AM INF Results saved to file /src/reportes/fase4-iac/kics_antes/results.json fileName=results.json
+2:04AM INF Scan duration: 633ms
+
+
+Resumen KICS sobre docker-compose.yml
+Total de hallazgos: 26
+Por severidad: HIGH: 7, MEDIUM: 12, INFO: 7
+
+Severidad  Hallazgo                                         Servicios/lineas afectados
+HIGH       Passwords And Secrets - Generic Password         77, 81, 82, 44, 14, 80, 17
+MEDIUM     Container Capabilities Unrestricted              59, 7, 90, 31
+MEDIUM     Healthcheck Not Set                              90, 31, 59
+MEDIUM     Privileged Ports Mapped In Container             51
+MEDIUM     Security Opt Not Set                             7, 31, 59, 90
+INFO       Shared Volumes Between Containers                56, 86, 54, 85, 19, 85, 54

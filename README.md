@@ -119,6 +119,25 @@ repetir la colección antes de ese tiempo, borra los bloqueos con:
 docker compose run --rm wpcli wp transient delete --all
 ```
 
+## Auditoría de contenedores e IaC (fase 4)
+
+La configuración de Docker se audita y se endurece, con reporte **antes y después** en
+`reportes/fase4-iac/`. La versión sin hardening se conserva en `docker-compose.yml.antes`.
+
+- **Trivy** escanea las imágenes (`mysql`, `wordpress`, `wordpress:cli`) en busca de CVE del sistema base.
+- **KICS** audita el `docker-compose.yml` (Checkov ya no soporta compose, por eso se usa KICS).
+
+```bash
+./scripts/escanear-fase4.sh antes     # o: despues
+```
+
+Hardening aplicado al compose (bajó los hallazgos de KICS de 26 a 12, y los de severidad alta a 0):
+contraseñas por **Docker secrets** (`_FILE`), `cap_drop: ALL` con capacidades mínimas,
+`no-new-privileges`, `read_only` con `tmpfs`, límites de CPU/memoria/PIDs, healthcheck,
+imágenes fijadas por **digest sha256**, MySQL sin publicar en el anfitrión, red `backend` interna y
+`WORDPRESS_DEBUG` apagado. Los secretos se generan desde `.env` con `scripts/generar-secretos.sh`
+(lo hace `instalar.sh`) y quedan en `secrets/` (fuera del repo).
+
 ## Pruebas ofensivas (fase 3)
 
 Todas las pruebas se hacen contra la línea base vulnerable en `localhost`. Las herramientas se

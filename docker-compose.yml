@@ -1,66 +1,109 @@
-# Línea base sin hardening; se audita con Checkov y Trivy y se corrige en la fase 4.
-# Los puertos se publican solo en 127.0.0.1 para no exponer el laboratorio a la red.
+# Version endurecida tras la auditoria de la fase 4 (Trivy y KICS).
+# La version anterior sin hardening se conserva en docker-compose.yml.antes para el antes/despues.
+# Antes de levantar hay que generar los secretos: ./scripts/generar-secretos.sh (lo hace instalar.sh).
 
 name: umg-wp-ecommerce
 
 services:
   db:
-    # Vulnerable intencional: imagen fijada por etiqueta pero no por digest.
-    image: mysql:8.4.13
+    image: mysql:8.4.13@sha256:a81d043930e51745522bd5c430961cf8286f0a23f0a9a2a6e0108f7ea71b0902
     container_name: umg-db
     restart: unless-stopped
-    # Vulnerable intencional: secretos en variables de entorno en lugar de Docker secrets.
+    # Las contraseñas se leen de archivos de secreto, no de variables de entorno.
     environment:
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:?Define MYSQL_ROOT_PASSWORD en .env}
+      MYSQL_ROOT_PASSWORD_FILE: /run/secrets/mysql_root_password
       MYSQL_DATABASE: ${MYSQL_DATABASE:-wordpress}
       MYSQL_USER: ${MYSQL_USER:-wpuser}
-      MYSQL_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+      MYSQL_PASSWORD_FILE: /run/secrets/mysql_password
+    secrets:
+      - mysql_root_password
+      - mysql_password
     volumes:
       - db_data:/var/lib/mysql
-    # Vulnerable intencional: MySQL publicado en el anfitrión sin necesidad.
-    ports:
-      - "127.0.0.1:${DB_PUERTO_HOST:-3306}:3306"
+    networks:
+      - backend
+    # MySQL ya no se publica en el anfitrión; solo es accesible en la red interna backend.
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u\"$$MYSQL_USER\" -p\"$$MYSQL_PASSWORD\" --silent"]
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u\"$$MYSQL_USER\" -p\"$$(cat /run/secrets/mysql_password)\" --silent"]
       interval: 10s
       timeout: 5s
       retries: 10
       start_period: 30s
-    # Vulnerable intencional: sin límites de recursos, sin no-new-privileges y sin cap_drop.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+    mem_limit: 1g
+    cpus: 1.5
+    pids_limit: 200
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run/mysqld
 
   wordpress:
-    # Vulnerable intencional: imagen fijada por etiqueta pero no por digest.
-    image: wordpress:7.1.4-php8.3-apache
+    image: wordpress:7.1.4-php8.3-apache@sha256:074f9ef5429025dab76a4242f5b796f64ae76a49dd19b6708ad29e1893a8d383
     container_name: umg-wordpress
     restart: unless-stopped
     depends_on:
       db:
         condition: service_healthy
-    # Vulnerable intencional: la contraseña de la BD viaja como variable de entorno.
     environment: &wp_env
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_NAME: ${MYSQL_DATABASE:-wordpress}
       WORDPRESS_DB_USER: ${MYSQL_USER:-wpuser}
-      WORDPRESS_DB_PASSWORD: ${MYSQL_PASSWORD:?Define MYSQL_PASSWORD en .env}
+      WORDPRESS_DB_PASSWORD_FILE: /run/secrets/mysql_password
       WORDPRESS_TABLE_PREFIX: ${WP_TABLE_PREFIX:-wp_}
-      # Vulnerable intencional: modo depuración activo que muestra errores PHP.
-      WORDPRESS_DEBUG: "1"
-      # Solo la usa la versión segura del plugin; la vulnerable tiene su clave escrita en el código.
-      CONSULTA_PEDIDOS_JWT_SECRET: ${CONSULTA_PEDIDOS_JWT_SECRET:-}
-    # Vulnerable intencional: solo HTTP, sin TLS ni WAF delante.
+      # Depuración apagada para no divulgar errores de PHP.
+      WORDPRESS_DEBUG: "0"
+      # La clave JWT de la versión segura del plugin se lee del secreto montado.
+      CONSULTA_PEDIDOS_JWT_SECRET_FILE: /run/secrets/consulta_pedidos_jwt_secret
+    secrets:
+      - mysql_password
+      - consulta_pedidos_jwt_secret
     ports:
       - "127.0.0.1:8080:80"
     volumes:
       - wp_html:/var/www/html
-      # PLUGIN_VERSION elige qué carpeta del plugin se monta: vulnerable o seguro.
       - ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro
-    # Vulnerable intencional: arranca como root, sin read_only ni límites de recursos.
+    networks:
+      - frontend
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fsS http://localhost:80/ >/dev/null || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 6
+      start_period: 90s
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+      - SETGID
+      - SETUID
+      - DAC_OVERRIDE
+      - FOWNER
+      - NET_BIND_SERVICE
+    mem_limit: 1g
+    cpus: 1.5
+    pids_limit: 300
+    # Apache necesita escribir en estas rutas; el resto del sistema de archivos es de solo lectura.
+    read_only: true
+    tmpfs:
+      - /tmp
+      - /run
+      - /var/run/apache2
 
   wpcli:
-    # No arranca con "up"; se usa con "docker compose run --rm wpcli ...".
-    image: wordpress:cli-2.12.0-php8.3
+    image: wordpress:cli-2.12.0-php8.3@sha256:e4980e3ef763ce7535049c05a54e906d95b16370f28ca02fa329a079eebf3f65
     profiles: ["herramientas"]
-    # La imagen CLI usa el UID 82 para www-data y la de Apache el 33; así coinciden los dueños de archivos.
     user: "33:33"
     depends_on:
       db:
@@ -69,31 +112,67 @@ services:
         condition: service_started
     environment:
       <<: *wp_env
-      # En la CLI se apaga la depuración para no llenar la salida de avisos.
       WORDPRESS_DEBUG: ""
       WP_URL: ${WP_URL:-http://localhost:8080}
       WP_TITULO: ${WP_TITULO:-Tienda UMG}
       WP_ADMIN_USER: ${WP_ADMIN_USER:-admin}
-      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:?Define WP_ADMIN_PASSWORD en .env}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-admin@tienda-umg.test}
       WOOCOMMERCE_VERSION: ${WOOCOMMERCE_VERSION:-11.3.0}
-      GESTOR_PASSWORD: ${GESTOR_PASSWORD:?Define GESTOR_PASSWORD en .env}
-      EDITOR_PASSWORD: ${EDITOR_PASSWORD:?Define EDITOR_PASSWORD en .env}
-      CLIENTE_PASSWORD: ${CLIENTE_PASSWORD:?Define CLIENTE_PASSWORD en .env}
       CREAR_DATOS_EJEMPLO: ${CREAR_DATOS_EJEMPLO:-1}
+    secrets:
+      - mysql_password
+      - consulta_pedidos_jwt_secret
+      - wp_admin_password
+      - gestor_password
+      - editor_password
+      - cliente_password
     volumes:
       - wp_html:/var/www/html
       - ./plugin-consulta-pedidos/${PLUGIN_VERSION:-vulnerable}:/var/www/html/wp-content/plugins/consulta-pedidos:ro
       - ./scripts:/scripts:ro
     working_dir: /var/www/html
+    # frontend para descargar WooCommerce de internet, backend para configurar la base de datos.
+    networks:
+      - frontend
+      - backend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
 
   composer:
-    # Instala las dependencias PHP del plugin: docker compose run --rm composer install -d vulnerable
     image: composer:2.11.2
     profiles: ["herramientas"]
     volumes:
       - ./plugin-consulta-pedidos:/app
     working_dir: /app
+    networks:
+      - frontend
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+secrets:
+  mysql_root_password:
+    file: ./secrets/mysql_root_password.txt
+  mysql_password:
+    file: ./secrets/mysql_password.txt
+  wp_admin_password:
+    file: ./secrets/wp_admin_password.txt
+  gestor_password:
+    file: ./secrets/gestor_password.txt
+  editor_password:
+    file: ./secrets/editor_password.txt
+  cliente_password:
+    file: ./secrets/cliente_password.txt
+  consulta_pedidos_jwt_secret:
+    file: ./secrets/consulta_pedidos_jwt_secret.txt
+
+networks:
+  frontend:
+  backend:
+    internal: true
 
 volumes:
   db_data:
