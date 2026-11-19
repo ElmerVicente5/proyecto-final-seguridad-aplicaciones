@@ -47,3 +47,6 @@ reportes/**/*_zap_caja-negra/
 
 # Docker secrets generados desde .env
 secrets/
+
+# Reportes HTML de las herramientas (pesados y regenerables con los scripts)
+reportes/**/html/

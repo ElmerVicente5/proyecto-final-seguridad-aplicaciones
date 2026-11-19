@@ -1,15 +1,15 @@
-# Plan de ZAP (Automation Framework) para el pentest de caja negra contra la tienda en localhost.
-# Las variables ZAP_REPORTES y FECHA las define scripts/escanear-zap.sh antes de lanzar ZAP.
+# Plan de ZAP (Automation Framework) para el pentest de caja negra contra la tienda.
+# Las variables ZAP_TARGET, ZAP_REPORTES y FECHA las define scripts/escanear-zap.sh antes de lanzar ZAP.
 env:
   contexts:
     - name: tienda
       urls:
-        - http://localhost:8080/
-        - http://localhost:8080/wp-json/
-        - http://localhost:8080/consultar-pedido/
-        - http://localhost:8080/xmlrpc.php
+        - ${ZAP_TARGET}/
+        - ${ZAP_TARGET}/wp-json/
+        - ${ZAP_TARGET}/consultar-pedido/
+        - ${ZAP_TARGET}/xmlrpc.php
       includePaths:
-        - http://localhost:8080.*
+        - ${ZAP_TARGET}.*
   parameters:
     failOnError: false
     progressToStdout: true

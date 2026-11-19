@@ -120,6 +120,23 @@ repetir la colección antes de ese tiempo, borra los bloqueos con:
 docker compose run --rm wpcli wp transient delete --all
 ```
 
+## Reproducir los escaneos
+
+Todas las herramientas de seguridad corren en **Docker**, así que un compañero que clona el repo no
+necesita instalar nada más (ni ZAP, ni Nmap, ni Semgrep): solo Docker, la CLI de Postman y un `.env`.
+Hay un punto de entrada único por fase:
+
+```bash
+./scripts/reproducir.sh fase2    # SAST (Semgrep) y SCA (Trivy) del plugin
+./scripts/reproducir.sh fase3    # Nmap, ZAP, WPScan y Postman (contra la línea base)
+./scripts/reproducir.sh fase4    # Trivy (imágenes) y KICS (compose), antes y después
+./scripts/reproducir.sh fase5    # pruebas de bloqueo del WAF
+```
+
+Cada escaneo guarda su salida en `reportes/<fase>/`, y los reportes HTML (Trivy, KICS, ZAP) en
+`reportes/<fase>/html/` para abrirlos en el navegador. Las fases 3 y 5 dependen del estado del
+entorno: la fase 3 se reproduce sobre la línea base vulnerable y la fase 5 sobre el entorno con WAF.
+
 ## Operaciones: WAF y hardening (fase 5)
 
 Un **WAF** (ModSecurity + OWASP Core Rule Set, imagen `owasp/modsecurity-crs`) se coloca como proxy
@@ -179,8 +196,9 @@ ejecutan desde la terminal y guardan sus reportes en `reportes/fase3-pentest/`.
 | Enumeración de WordPress | WPScan | `docker run --rm --network host wpscanteam/wpscan --url http://localhost:8080 --enumerate u,cb,dbe --plugins-detection passive` |
 | APIs nativas (caja gris) | Postman | `postman collection run postman/wordpress-woocommerce-api.postman_collection.json -e postman/laboratorio-localhost.postman_environment.json` |
 
-`scripts/escanear-zap.sh` usa el ZAP instalado en Windows (ajusta `ZAP_DIR` si está en otra ruta) y
-corre el plan [scripts/zap/plan-caja-negra.yaml](scripts/zap/plan-caja-negra.yaml) en el puerto 8090.
+`scripts/escanear-zap.sh` corre ZAP en Docker (`zaproxy/zap-stable`) con el plan
+[scripts/zap/plan-caja-negra.yaml](scripts/zap/plan-caja-negra.yaml); no hace falta instalar ZAP.
+`scripts/escanear-nmap.sh` hace lo mismo con Nmap en Docker.
 
 El escaneo activo de ZAP envía miles de peticiones y **ensucia la base de datos**. Al terminar la
 fase 3, reinicia el entorno desde cero:
