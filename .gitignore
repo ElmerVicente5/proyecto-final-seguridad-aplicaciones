@@ -12,8 +12,10 @@ mysql/
 *.sql
 *.sql.gz
 
-# Evidencias y Word de entrega: solo se usan en local y se comparten aparte con el equipo
-evidencias/
+# Evidencias: las capturas por fase si se versionan para el equipo documental;
+# el registro y el Word de entrega quedan solo en local.
+evidencias/*
+!evidencias/capturas/
 informe/
 scripts/generar_evidencias.py
 requirements.txt
