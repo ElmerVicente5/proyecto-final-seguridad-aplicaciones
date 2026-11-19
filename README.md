@@ -122,7 +122,8 @@ docker compose run --rm wpcli wp transient delete --all
 ## Auditoría de contenedores e IaC (fase 4)
 
 La configuración de Docker se audita y se endurece, con reporte **antes y después** en
-`reportes/fase4-iac/`. La versión sin hardening se conserva en `docker-compose.yml.antes`.
+`reportes/fase4-iac/`. Las dos versiones del compose se conservan en
+[docs/antes-despues/](docs/antes-despues/) (`fase4_docker-compose.antes.yml` y `.despues.yml`).
 
 - **Trivy** escanea las imágenes (`mysql`, `wordpress`, `wordpress:cli`) en busca de CVE del sistema base.
 - **KICS** audita el `docker-compose.yml` (Checkov ya no soporta compose, por eso se usa KICS).
