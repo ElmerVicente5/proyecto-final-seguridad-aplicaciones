@@ -1,45 +1,49 @@
-<mxGraphModel adaptiveColors="auto" dx="900" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="760" math="0" shadow="0">
-  <root>
-    <mxCell id="0"/>
-    <mxCell id="1" parent="0"/>
-    <mxCell id="titulo" value="Arquitectura actual (linea base recibida, sin controles)" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
-      <mxGeometry x="40" y="20" width="900" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="leyenda" value="Rojo: debilidad de la linea base detectada en las fases 1 a 4" style="text;html=1;fontSize=12;align=left;fontColor=#C9302C;" vertex="1" parent="1">
-      <mxGeometry x="40" y="50" width="700" height="20" as="geometry"/>
-    </mxCell>
-    <mxCell id="cliente" value="Cliente&#10;&lt;br&gt;&lt;small&gt;navegador&lt;/small&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;labelPerimeter=1;" vertex="1" parent="1">
-      <mxGeometry x="80" y="330" width="50" height="90" as="geometry"/>
-    </mxCell>
-    <mxCell id="host" value="Host Docker (anfitrion Windows, localhost)" style="swimlane;startSize=34;html=1;fontSize=14;fontStyle=1;fillColor=#F7F8FA;strokeColor=#B8C0CC;verticalAlign=top;" vertex="1" parent="1">
-      <mxGeometry x="240" y="110" width="800" height="560" as="geometry"/>
-    </mxCell>
-    <mxCell id="red" value="Red Docker unica y plana (sin segmentacion)" style="swimlane;startSize=30;html=1;fontSize=13;fontStyle=1;fillColor=#FDECEC;strokeColor=#EBA3A3;verticalAlign=top;" vertex="1" parent="host">
-      <mxGeometry x="40" y="60" width="720" height="460" as="geometry"/>
-    </mxCell>
-    <mxCell id="wp" value="WordPress + WooCommerce&#10;&lt;br&gt;&lt;small&gt;Apache 2.4 · PHP 8.3 · contenedor&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#EEF4FF;strokeColor=#9DB8F2;" vertex="1" parent="red">
-      <mxGeometry x="60" y="70" width="240" height="70" as="geometry"/>
-    </mxCell>
-    <mxCell id="db" value="MySQL 8.4&#10;&lt;br&gt;&lt;small&gt;datos de la tienda&lt;/small&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=13;fillColor=#F3EEFF;strokeColor=#B9A6F0;" vertex="1" parent="red">
-      <mxGeometry x="480" y="60" width="140" height="100" as="geometry"/>
-    </mxCell>
-    <mxCell id="env" value="Secretos en variables de entorno&#10;&lt;br&gt;&lt;small&gt;visibles con docker inspect&lt;/small&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" vertex="1" parent="red">
-      <mxGeometry x="60" y="250" width="240" height="60" as="geometry"/>
-    </mxCell>
-    <mxCell id="debug" value="WORDPRESS_DEBUG activo&#10;&lt;br&gt;&lt;small&gt;divulga errores y rutas&lt;/small&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" vertex="1" parent="red">
-      <mxGeometry x="60" y="330" width="240" height="60" as="geometry"/>
-    </mxCell>
-    <mxCell id="imgcve" value="Imagenes oficiales con CVEs&#10;&lt;br&gt;&lt;small&gt;sin digest, sin limites de recursos&lt;/small&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" vertex="1" parent="red">
-      <mxGeometry x="420" y="250" width="260" height="60" as="geometry"/>
-    </mxCell>
-    <mxCell id="noroot" value="Contenedores como root&#10;&lt;br&gt;&lt;small&gt;sin cap_drop ni no-new-privileges&lt;/small&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" vertex="1" parent="red">
-      <mxGeometry x="420" y="330" width="260" height="60" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_http" value="HTTP sin TLS&#10;puerto 8080" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#C9302C;fontColor=#C9302C;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="1" source="cliente" target="wp">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_sql" value="SQL en claro&#10;3306 expuesto al host" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#C9302C;fontColor=#C9302C;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" edge="1" parent="red" source="wp" target="db">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-  </root>
-</mxGraphModel>
+<mxfile host="app.diagrams.net">
+  <diagram id="nSlKgAx2Oexg6qSiNjWm" name="Página-1">
+    <mxGraphModel dx="880" dy="483" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="760" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" parent="1" style="text;html=1;fontSize=18;fontStyle=1;align=left;verticalAlign=middle;" value="Arquitectura actual (linea base recibida, sin controles)" vertex="1">
+          <mxGeometry height="30" width="900" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leyenda" parent="1" style="text;html=1;fontSize=12;align=left;fontColor=#C9302C;" value="Rojo: debilidad de la linea base detectada en las fases 1 a 4" vertex="1">
+          <mxGeometry height="20" width="700" x="40" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="cliente" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;labelPerimeter=1;" value="Cliente&#xa;&lt;br&gt;&lt;small&gt;navegador&lt;/small&gt;" vertex="1">
+          <mxGeometry height="90" width="50" x="80" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="host" parent="1" style="swimlane;startSize=34;html=1;fontSize=14;fontStyle=1;fillColor=#F7F8FA;strokeColor=#B8C0CC;verticalAlign=top;" value="Host Docker (anfitrion Windows, localhost)" vertex="1">
+          <mxGeometry height="560" width="800" x="240" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="red" parent="host" style="swimlane;startSize=30;html=1;fontSize=13;fontStyle=1;fillColor=#FDECEC;strokeColor=#EBA3A3;verticalAlign=top;" value="Red Docker unica y plana (sin segmentacion)" vertex="1">
+          <mxGeometry height="460" width="720" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="wp" parent="red" style="rounded=1;whiteSpace=wrap;html=1;fontSize=13;fillColor=#EEF4FF;strokeColor=#9DB8F2;" value="WordPress + WooCommerce&#xa;&lt;br&gt;&lt;small&gt;Apache 2.4 · PHP 8.3 · contenedor&lt;/small&gt;" vertex="1">
+          <mxGeometry height="70" width="240" x="60" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="red" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=13;fillColor=#F3EEFF;strokeColor=#B9A6F0;" value="MySQL 8.4&#xa;&lt;br&gt;&lt;small&gt;datos de la tienda&lt;/small&gt;" vertex="1">
+          <mxGeometry height="100" width="140" x="480" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="env" parent="red" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" value="Secretos en variables de entorno&#xa;&lt;br&gt;&lt;small&gt;visibles con docker inspect&lt;/small&gt;" vertex="1">
+          <mxGeometry height="60" width="240" x="60" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="debug" parent="red" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" value="WORDPRESS_DEBUG activo&#xa;&lt;br&gt;&lt;small&gt;divulga errores y rutas&lt;/small&gt;" vertex="1">
+          <mxGeometry height="60" width="240" x="60" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="imgcve" parent="red" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" value="Imagenes oficiales con CVEs&#xa;&lt;br&gt;&lt;small&gt;sin digest, sin limites de recursos&lt;/small&gt;" vertex="1">
+          <mxGeometry height="60" width="260" x="420" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="noroot" parent="red" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;dashed=1;" value="Contenedores como root&#xa;&lt;br&gt;&lt;small&gt;sin cap_drop ni no-new-privileges&lt;/small&gt;" vertex="1">
+          <mxGeometry height="60" width="260" x="420" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="ed_sql" edge="1" parent="red" source="wp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#C9302C;fontColor=#C9302C;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" target="db" value="SQL en claro&#xa;3306 expuesto al host">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed_http" edge="1" parent="1" source="cliente" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;strokeColor=#C9302C;fontColor=#C9302C;labelBackgroundColor=default;defaultLabelBackgroundColor=page;labelPlacement=auto;" target="wp" value="HTTP sin TLS&#xa;puerto 8080">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
