@@ -167,6 +167,8 @@ services:
       BACKEND: http://wordpress:80
       SERVERNAME: localhost
       PORT: 8080
+      # En local se accede por HTTP; reenvia el esquema real para que WordPress genere enlaces http y no https.
+      REQ_HEADER_FORWARDED_PROTO: "http"
       # On bloquea; DetectionOnly solo registra. Nivel de paranoia 1 para no romper el panel.
       MODSEC_RULE_ENGINE: "On"
       PARANOIA: "1"
