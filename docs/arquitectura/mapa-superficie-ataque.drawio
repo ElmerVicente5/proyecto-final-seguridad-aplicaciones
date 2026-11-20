@@ -1,96 +1,105 @@
-<mxGraphModel adaptiveColors="auto" dx="800" dy="600" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="820" math="0" shadow="0">
-  <root>
-    <mxCell id="0"/>
-    <mxCell id="1" parent="0"/>
-    <mxCell id="titulo" value="Mapa de superficie de ataque - Tienda UMG (localhost)" style="text;html=1;fontSize=20;fontStyle=1;align=left;verticalAlign=middle;" vertex="1" parent="1">
-      <mxGeometry x="40" y="20" width="900" height="30" as="geometry"/>
-    </mxCell>
-    <mxCell id="leyenda" value="Rojo: punto explotado en la fase 3   ·   Verde: control que ya responde bien   ·   Gris: expone informacion" style="text;html=1;fontSize=12;align=left;verticalAlign=middle;fontColor=#5A626E;" vertex="1" parent="1">
-      <mxGeometry x="40" y="52" width="900" height="20" as="geometry"/>
-    </mxCell>
-    <mxCell id="pentester" value="Pentester&#10;&lt;br&gt;&lt;small&gt;navegador y herramientas&#10;en el anfitrion&lt;/small&gt;" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;outlineConnect=0;labelPerimeter=1;" vertex="1" parent="1">
-      <mxGeometry x="60" y="360" width="50" height="90" as="geometry"/>
-    </mxCell>
-    <mxCell id="host" value="Anfitrion Windows - puertos publicados en 127.0.0.1" style="swimlane;startSize=30;html=1;fontSize=14;fontStyle=1;fillColor=#F7F8FA;strokeColor=#B8C0CC;verticalAlign=top;" vertex="1" parent="1">
-      <mxGeometry x="200" y="90" width="1260" height="700" as="geometry"/>
-    </mxCell>
-    <mxCell id="p8080" value="8080/tcp - HTTP&#10;&lt;br&gt;&lt;small&gt;Apache 2.4.69 · sin TLS&lt;/small&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="host">
-      <mxGeometry x="20" y="250" width="150" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="p3306" value="3306/tcp - MySQL&#10;&lt;br&gt;&lt;small&gt;MySQL 8.4.13 expuesto&lt;/small&gt;" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="host">
-      <mxGeometry x="20" y="430" width="150" height="50" as="geometry"/>
-    </mxCell>
-    <mxCell id="wp" value="Contenedor umg-wordpress&#10;&lt;br&gt;&lt;small&gt;Apache 2.4.69 · PHP 8.3.36 · WordPress 7.1.4 · WooCommerce 11.3.0&lt;/small&gt;" style="swimlane;startSize=46;html=1;fontSize=13;fontStyle=1;fillColor=#FFFFFF;strokeColor=#9DB8F2;verticalAlign=top;" vertex="1" parent="host">
-      <mxGeometry x="230" y="50" width="760" height="610" as="geometry"/>
-    </mxCell>
-    <mxCell id="gpub" value="Paginas publicas" style="swimlane;startSize=26;html=1;fontSize=12;fontStyle=1;fillColor=#EEF4FF;strokeColor=#9DB8F2;verticalAlign=top;" vertex="1" parent="wp">
-      <mxGeometry x="20" y="60" width="220" height="250" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_home" value="/  portada&#10;&lt;br&gt;&lt;small&gt;Hello world + tienda&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="gpub">
-      <mxGeometry x="20" y="36" width="180" height="44" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_shop" value="/shop/  /cart/  /checkout/&#10;&lt;br&gt;&lt;small&gt;WooCommerce&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="gpub">
-      <mxGeometry x="20" y="96" width="180" height="44" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_consulta" value="/consultar-pedido/&#10;&lt;br&gt;&lt;small&gt;plugin propio: XSS y CSRF&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gpub">
-      <mxGeometry x="20" y="156" width="180" height="44" as="geometry"/>
-    </mxCell>
-    <mxCell id="gauth" value="Autenticacion y enumeracion" style="swimlane;startSize=26;html=1;fontSize=12;fontStyle=1;fillColor=#FDECEC;strokeColor=#EBA3A3;verticalAlign=top;" vertex="1" parent="wp">
-      <mxGeometry x="20" y="330" width="220" height="250" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_login" value="wp-login.php&#10;&lt;br&gt;&lt;small&gt;fuerza bruta&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gauth">
-      <mxGeometry x="20" y="36" width="180" height="44" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_xmlrpc" value="xmlrpc.php&#10;&lt;br&gt;&lt;small&gt;system.multicall amplifica&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gauth">
-      <mxGeometry x="20" y="96" width="180" height="44" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_author" value="/?author=N&#10;&lt;br&gt;&lt;small&gt;revela el usuario admin&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gauth">
-      <mxGeometry x="20" y="156" width="180" height="44" as="geometry"/>
-    </mxCell>
-    <mxCell id="gapi" value="API REST  /wp-json/" style="swimlane;startSize=26;html=1;fontSize=12;fontStyle=1;fillColor=#FFF6E0;strokeColor=#E8C36A;verticalAlign=top;" vertex="1" parent="wp">
-      <mxGeometry x="270" y="60" width="470" height="520" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_index" value="/wp-json/  indice de rutas&#10;&lt;br&gt;&lt;small&gt;publico · mapa de toda la API&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#F2F4F7;strokeColor=#B8C0CC;" vertex="1" parent="gapi">
-      <mxGeometry x="20" y="40" width="210" height="46" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_users" value="wp/v2/users&#10;&lt;br&gt;&lt;small&gt;enumera usuarios sin sesion&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gapi">
-      <mxGeometry x="20" y="100" width="210" height="46" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_cp" value="consulta-pedidos/v1&#10;&lt;br&gt;&lt;small&gt;IDOR · SQLi · JWT debil&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gapi">
-      <mxGeometry x="20" y="160" width="210" height="46" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_wc3" value="wc/v3/*&#10;&lt;br&gt;&lt;small&gt;exige credenciales (401)&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="gapi">
-      <mxGeometry x="250" y="100" width="200" height="46" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_store" value="wc/store/v1/*&#10;&lt;br&gt;&lt;small&gt;BOLA bloqueado · tope 100&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" vertex="1" parent="gapi">
-      <mxGeometry x="250" y="160" width="200" height="46" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_cron" value="wp-cron.php&#10;&lt;br&gt;&lt;small&gt;tareas programadas&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#F2F4F7;strokeColor=#B8C0CC;" vertex="1" parent="gapi">
-      <mxGeometry x="20" y="240" width="210" height="46" as="geometry"/>
-    </mxCell>
-    <mxCell id="e_headers" value="Cabeceras de respuesta&#10;&lt;br&gt;&lt;small&gt;sin CSP ni anti-clickjacking&#10;revela PHP y Apache&lt;/small&gt;" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" vertex="1" parent="gapi">
-      <mxGeometry x="250" y="240" width="200" height="60" as="geometry"/>
-    </mxCell>
-    <mxCell id="red" value="Red interna Docker  172.19.0.0/16  (sin segmentacion)" style="swimlane;startSize=30;html=1;fontSize=13;fontStyle=1;fillColor=#FDECEC;strokeColor=#EBA3A3;verticalAlign=top;" vertex="1" parent="host">
-      <mxGeometry x="1050" y="250" width="190" height="240" as="geometry"/>
-    </mxCell>
-    <mxCell id="db" value="umg-db&#10;&lt;br&gt;&lt;small&gt;MySQL 8.4.13&lt;/small&gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=12;fillColor=#F3EEFF;strokeColor=#B9A6F0;" vertex="1" parent="red">
-      <mxGeometry x="40" y="80" width="110" height="110" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_http" value="HTTP 8080" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;labelBackgroundColor=default;defaultLabelBackgroundColor=page;strokeColor=#8A94A6;labelPlacement=auto;" edge="1" parent="1" source="pentester" target="p8080">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_sql" value="3306 directo" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;dashed=1;labelBackgroundColor=default;defaultLabelBackgroundColor=page;strokeColor=#C9302C;fontColor=#C9302C;labelPlacement=auto;" edge="1" parent="1" source="pentester" target="p3306">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_front" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8A94A6;labelBackgroundColor=default;defaultLabelBackgroundColor=page;" edge="1" parent="host" source="p8080" target="wp">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_internal" value="consultas SQL" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;labelBackgroundColor=default;defaultLabelBackgroundColor=page;strokeColor=#8A94A6;labelPlacement=auto;" edge="1" parent="host" source="wp" target="red">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-    <mxCell id="ed_hostdb" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#C9302C;labelBackgroundColor=default;defaultLabelBackgroundColor=page;" edge="1" parent="host" source="p3306" target="red">
-      <mxGeometry relative="1" as="geometry"/>
-    </mxCell>
-  </root>
-</mxGraphModel>
+<mxfile host="app.diagrams.net">
+  <diagram id="dPIZm91W3dj2c3geall0" name="Página-1">
+    <mxGraphModel dx="1235" dy="677" grid="0" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="820" math="0" shadow="0" adaptiveColors="auto">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titulo" parent="1" style="text;html=1;fontSize=20;fontStyle=1;align=left;verticalAlign=middle;" value="Mapa de superficie de ataque - Tienda UMG (localhost)" vertex="1">
+          <mxGeometry height="30" width="900" x="40" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="leyenda" parent="1" style="text;html=1;fontSize=12;align=left;verticalAlign=middle;fontColor=#5A626E;" value="Rojo: punto explotado en la fase 3   ·   Verde: control que ya responde bien   ·   Gris: expone informacion" vertex="1">
+          <mxGeometry height="20" width="900" x="40" y="52" as="geometry" />
+        </mxCell>
+        <mxCell id="pentester" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;fontSize=13;outlineConnect=0;labelPerimeter=1;" value="Pentester&#xa;&lt;br&gt;&lt;small&gt;navegador y herramientas&#xa;en el anfitrion&lt;/small&gt;" vertex="1">
+          <mxGeometry height="90" width="50" x="60" y="360" as="geometry" />
+        </mxCell>
+        <mxCell id="host" parent="1" style="swimlane;startSize=30;html=1;fontSize=14;fontStyle=1;fillColor=#F7F8FA;strokeColor=#B8C0CC;verticalAlign=top;" value="Anfitrion Windows - puertos publicados en 127.0.0.1" vertex="1">
+          <mxGeometry height="700" width="1260" x="200" y="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p8080" parent="host" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="8080/tcp - HTTP&#xa;&lt;br&gt;&lt;small&gt;Apache 2.4.69 · sin TLS&lt;/small&gt;" vertex="1">
+          <mxGeometry height="50" width="150" x="20" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="p3306" parent="host" style="rounded=0;whiteSpace=wrap;html=1;fontSize=12;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="3306/tcp - MySQL&#xa;&lt;br&gt;&lt;small&gt;MySQL 8.4.13 expuesto&lt;/small&gt;" vertex="1">
+          <mxGeometry height="50" width="150" x="20" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="wp" parent="host" style="swimlane;startSize=46;html=1;fontSize=13;fontStyle=1;fillColor=#FFFFFF;strokeColor=#9DB8F2;verticalAlign=top;" value="Contenedor umg-wordpress&#xa;&lt;br&gt;&lt;small&gt;Apache 2.4.69 · PHP 8.3.36 · WordPress 7.1.4 · WooCommerce 11.3.0&lt;/small&gt;" vertex="1">
+          <mxGeometry height="610" width="760" x="230" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="gpub" parent="wp" style="swimlane;startSize=26;html=1;fontSize=12;fontStyle=1;fillColor=#EEF4FF;strokeColor=#9DB8F2;verticalAlign=top;" value="Paginas publicas" vertex="1">
+          <mxGeometry height="250" width="220" x="20" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_home" parent="gpub" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" value="/  portada&#xa;&lt;br&gt;&lt;small&gt;Hello world + tienda&lt;/small&gt;" vertex="1">
+          <mxGeometry height="44" width="180" x="20" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e_shop" parent="gpub" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" value="/shop/  /cart/  /checkout/&#xa;&lt;br&gt;&lt;small&gt;WooCommerce&lt;/small&gt;" vertex="1">
+          <mxGeometry height="44" width="180" x="20" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="e_consulta" parent="gpub" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="/consultar-pedido/&#xa;&lt;br&gt;&lt;small&gt;plugin propio: XSS y CSRF&lt;/small&gt;" vertex="1">
+          <mxGeometry height="44" width="180" x="20" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="gauth" parent="wp" style="swimlane;startSize=26;html=1;fontSize=12;fontStyle=1;fillColor=#FDECEC;strokeColor=#EBA3A3;verticalAlign=top;" value="Autenticacion y enumeracion" vertex="1">
+          <mxGeometry height="250" width="220" x="20" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="e_login" parent="gauth" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="wp-login.php&#xa;&lt;br&gt;&lt;small&gt;fuerza bruta&lt;/small&gt;" vertex="1">
+          <mxGeometry height="44" width="180" x="20" y="36" as="geometry" />
+        </mxCell>
+        <mxCell id="e_xmlrpc" parent="gauth" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="xmlrpc.php&#xa;&lt;br&gt;&lt;small&gt;system.multicall amplifica&lt;/small&gt;" vertex="1">
+          <mxGeometry height="44" width="180" x="20" y="96" as="geometry" />
+        </mxCell>
+        <mxCell id="e_author" parent="gauth" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="/?author=N&#xa;&lt;br&gt;&lt;small&gt;revela el usuario admin&lt;/small&gt;" vertex="1">
+          <mxGeometry height="44" width="180" x="20" y="156" as="geometry" />
+        </mxCell>
+        <mxCell id="gapi" parent="wp" style="swimlane;startSize=26;html=1;fontSize=12;fontStyle=1;fillColor=#FFF6E0;strokeColor=#E8C36A;verticalAlign=top;" value="API REST  /wp-json/" vertex="1">
+          <mxGeometry height="520" width="470" x="270" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="e_index" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#F2F4F7;strokeColor=#B8C0CC;" value="/wp-json/  indice de rutas&#xa;&lt;br&gt;&lt;small&gt;publico · mapa de toda la API&lt;/small&gt;" vertex="1">
+          <mxGeometry height="46" width="210" x="20" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="e_users" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="wp/v2/users&#xa;&lt;br&gt;&lt;small&gt;enumera usuarios sin sesion&lt;/small&gt;" vertex="1">
+          <mxGeometry height="46" width="210" x="20" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cp" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="consulta-pedidos/v1&#xa;&lt;br&gt;&lt;small&gt;IDOR · SQLi · JWT debil&lt;/small&gt;" vertex="1">
+          <mxGeometry height="46" width="210" x="20" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="e_wc3" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" value="wc/v3/*&#xa;&lt;br&gt;&lt;small&gt;exige credenciales (401)&lt;/small&gt;" vertex="1">
+          <mxGeometry height="46" width="200" x="250" y="100" as="geometry" />
+        </mxCell>
+        <mxCell id="e_store" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#E7F6EC;strokeColor=#8BCB9F;" value="wc/store/v1/*&#xa;&lt;br&gt;&lt;small&gt;BOLA bloqueado · tope 100&lt;/small&gt;" vertex="1">
+          <mxGeometry height="46" width="200" x="250" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="e_cron" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#F2F4F7;strokeColor=#B8C0CC;" value="wp-cron.php&#xa;&lt;br&gt;&lt;small&gt;tareas programadas&lt;/small&gt;" vertex="1">
+          <mxGeometry height="46" width="210" x="20" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="e_headers" parent="gapi" style="rounded=1;whiteSpace=wrap;html=1;fontSize=11;fillColor=#FDECEC;strokeColor=#EBA3A3;" value="Cabeceras de respuesta&#xa;&lt;br&gt;&lt;small&gt;sin CSP ni anti-clickjacking&#xa;revela PHP y Apache&lt;/small&gt;" vertex="1">
+          <mxGeometry height="60" width="200" x="250" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="red" parent="host" style="swimlane;startSize=30;html=1;fontSize=13;fontStyle=1;fillColor=#FDECEC;strokeColor=#EBA3A3;verticalAlign=top;" value="Red interna Docker  172.19.0.0/16  (sin segmentacion)" vertex="1">
+          <mxGeometry height="240" width="190" x="1050" y="250" as="geometry" />
+        </mxCell>
+        <mxCell id="db" parent="red" style="shape=cylinder3;whiteSpace=wrap;html=1;fontSize=12;fillColor=#F3EEFF;strokeColor=#B9A6F0;" value="umg-db&#xa;&lt;br&gt;&lt;small&gt;MySQL 8.4.13&lt;/small&gt;" vertex="1">
+          <mxGeometry height="110" width="110" x="40" y="80" as="geometry" />
+        </mxCell>
+        <mxCell id="ed_front" edge="1" parent="host" source="p8080" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;strokeColor=#8A94A6;labelBackgroundColor=default;defaultLabelBackgroundColor=page;" target="wp" value="">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed_internal" edge="1" parent="host" source="wp" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;labelBackgroundColor=default;defaultLabelBackgroundColor=page;strokeColor=#8A94A6;labelPlacement=auto;" target="red" value="consultas SQL">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed_hostdb" edge="1" parent="host" source="p3306" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;dashed=1;strokeColor=#C9302C;labelBackgroundColor=default;defaultLabelBackgroundColor=page;" target="red" value="">
+          <mxGeometry relative="1" x="0.3344" as="geometry">
+            <Array as="points">
+              <mxPoint x="95" y="671.7" />
+              <mxPoint x="1145" y="671.7" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ed_http" edge="1" parent="1" source="pentester" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;labelBackgroundColor=default;defaultLabelBackgroundColor=page;strokeColor=#8A94A6;labelPlacement=auto;" target="p8080" value="HTTP 8080">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ed_sql" edge="1" parent="1" source="pentester" style="edgeStyle=orthogonalEdgeStyle;rounded=1;html=1;fontSize=12;dashed=1;labelBackgroundColor=default;defaultLabelBackgroundColor=page;strokeColor=#C9302C;fontColor=#C9302C;labelPlacement=auto;" target="p3306" value="3306 directo">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
